@@ -54,19 +54,15 @@ class Feed extends Model
             'is_valid' => $isValid,
         ]);
 
-        $this->update([
-            'last_checked' => now(),
-            'status' => $isValid ? 'healthy' : 'failing',
-        ]);
+        $this->last_checked = now();
+        $this->status = $isValid ? 'healthy' : 'failing';
 
         // TODO: only notify once on status change
 
         if (! $isValid) {
             Mail::send(new FeedFailed($this, $check));
 
-            $this->update([
-                'last_notified' => now(),
-            ]);
+            $this->last_notified = now();
 
             $this->save();
 
