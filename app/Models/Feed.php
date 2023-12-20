@@ -19,7 +19,7 @@ class Feed extends Model
     use HasFactory;
     use HasUuids;
 
-    protected $fillable = ['url', 'email', 'type', 'last_checked'];
+    protected $fillable = ['url', 'email', 'type', 'status', 'last_checked', 'last_notified'];
 
     public function manageUrl(): string
     {
@@ -46,12 +46,20 @@ class Feed extends Model
         ]);
 
         $this->update([
-            'last_checked' => now()
+            'last_checked' => now(),
+            'status' => $isValid ? 'healthy' : 'failing',
         ]);
 
+        // TODO: only notify once on status change
+
         if (! $response->successful() || ! $isValid) {
-            // TODO: send yikes email with details
-            Mail::to($this->email)->send(new FeedFailed($this, $check));
+            Mail::to($this->email)
+                ->send(new FeedFailed($this, $check));
+
+            $this->update([
+                'last_notified' => now(),
+            ]);
+
             return false;
         }
 
