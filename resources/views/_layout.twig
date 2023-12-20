@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Feed Canary</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+</head>
+
+<body>
+<header class="container">
+  <nav>
+    <ul>
+      <li><strong>{{ "Feed Canary" }}</strong></li>
+    </ul>
+    {#
+    <ul>
+      <li><a href="#">Link</a></li>
+      <li><a href="#">Link</a></li>
+      <li><a href="#" role="button">Button</a></li>
+    </ul>
+    #}
+  </nav>
+</header>
+
+<main class="container">
+  {% block main %}
+  {% endblock main %}
+</main>
+
+{#
+<footer>
+</footer>
+#}
+</body>
+</html>

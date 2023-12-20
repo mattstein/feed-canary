@@ -1,0 +1,12 @@
+{% extends "_layout.twig" %}
+
+{% block main %}
+  <h1>{{ feed.url }}</h1>
+  <pre>{{ feed | json_encode }}</pre>
+  <form action="{{ feed.deleteAction() }}" method="post">
+    {{ csrf_field() }}
+    <button name="delete" value="delete">
+      {{ 'Delete' }}
+    </button>
+  </form>
+{% endblock %}

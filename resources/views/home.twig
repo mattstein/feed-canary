@@ -1,0 +1,10 @@
+{% extends "_layout.twig" %}
+
+{% block main %}
+  <form action="/add" method="post">
+    {{ csrf_field() }}
+    <input type="email" name="email" value="m@ttste.in">
+    <input type="url" name="url" value="https://mattstein.com/rss.xml">
+    <button>+ Add Feed</button>
+  </form>
+{% endblock %}
