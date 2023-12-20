@@ -67,8 +67,12 @@ class Feed extends Model
                 'last_notified' => now(),
             ]);
 
+            $this->save();
+
             return false;
         }
+
+        $this->save();
 
         return true;
     }
