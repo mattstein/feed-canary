@@ -54,25 +54,21 @@ class Feed extends Model
             'is_valid' => $isValid,
         ]);
 
-        $self = Feed::query()
-            ->where('id', $this->id)
-            ->first();
-
-        $self->last_checked = now();
-        $self->status = $isValid ? 'healthy' : 'failing';
+        $this->last_checked = now();
+        $this->status = $isValid ? 'healthy' : 'failing';
 
         // TODO: only notify once on status change
 
         if (! $isValid) {
             try {
-                Mail::send(new FeedFailed($self, $check));
-                $self->last_notified = now();
+                Mail::send(new FeedFailed($this, $check));
+                $this->last_notified = now();
             } catch (\Exception $e) {
 
             }
         }
 
-        $self->save();
+        $this->save();
 
         return $isValid;
     }
