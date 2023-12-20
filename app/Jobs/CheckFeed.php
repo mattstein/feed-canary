@@ -12,16 +12,14 @@ class CheckFeed implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;
 
-    protected ?Feed $feed = null;
+    protected ?string $feedId = null;
 
     /**
      * Create a new job instance.
      */
     public function __construct(string $feedId)
     {
-        $this->feed = Feed::query()
-            ->where(['id' => $feedId])
-            ->first();
+        $this->feedId = $feedId;
     }
 
     /**
@@ -29,8 +27,12 @@ class CheckFeed implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->feed) {
-            $this->feed->check();
+        $feed = Feed::query()
+            ->where(['id' => $this->feedId])
+            ->first();
+
+        if ($feed) {
+            $feed->check();
         }
     }
 }
