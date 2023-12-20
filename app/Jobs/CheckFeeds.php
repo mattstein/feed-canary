@@ -27,9 +27,8 @@ class CheckFeeds implements ShouldQueue
      */
     public function handle(): void
     {
-        $cutoff = Carbon::now()->subHours(1);
+        $cutoff = Carbon::now()->subMinutes(10);
 
-        // TODO: where date is null or past cutoff
         $feeds = Feed::query()
             ->where('last_checked', '<=', $cutoff)
             ->orWhere('last_checked', null);
