@@ -60,18 +60,17 @@ class Feed extends Model
         // TODO: only notify once on status change
 
         if (! $isValid) {
-            Mail::send(new FeedFailed($this, $check));
+            try {
+                Mail::send(new FeedFailed($this, $check));
+                $this->last_notified = now();
+            } catch (\Exception $e) {
 
-            $this->last_notified = now();
-
-            $this->save();
-
-            return false;
+            }
         }
 
         $this->save();
 
-        return true;
+        return $isValid;
     }
 
     public function latestCheck(): Check|null
