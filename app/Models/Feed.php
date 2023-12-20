@@ -34,8 +34,12 @@ class Feed extends Model
     public function check(): bool
     {
         $response = Http::get($this->url);
-        $validator = new FeedValidator();
-        $isValid = $validator->validate($this->url);
+        $isValid = false;
+
+        if ($response->successful()) {
+            $validator = new FeedValidator();
+            $isValid = $validator->validate($this->url);
+        }
 
         $check = Check::create([
             'feed_id' => $this->id,
@@ -52,7 +56,7 @@ class Feed extends Model
 
         // TODO: only notify once on status change
 
-        if (! $response->successful() || ! $isValid) {
+        if (! $isValid) {
             Mail::to($this->email)
                 ->send(new FeedFailed($this, $check));
 
