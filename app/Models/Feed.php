@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Mail\FeedFailed;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Fungku\MarkupValidator\FeedValidator;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * @property string $id
@@ -35,7 +37,7 @@ class Feed extends Model
         $validator = new FeedValidator();
         $isValid = $validator->validate($this->url);
 
-        Check::create([
+        $check = Check::create([
             'feed_id' => $this->id,
             'status' => $response->status(),
             'headers' => json_encode($response->headers()),
@@ -49,6 +51,7 @@ class Feed extends Model
 
         if (! $response->successful() || ! $isValid) {
             // TODO: send yikes email with details
+            Mail::to($this->email)->send(new FeedFailed($this, $check));
             return false;
         }
 

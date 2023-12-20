@@ -1,9 +1,11 @@
 # Feed Canary
 
-- [ ] feed added email
-- [ ] feed missing email
-- [ ] home view
-- [ ] manage feed view
-- [ ] queue checking job
-- [ ] initial feed add action
+- [ ] feed confirmation flow
+- [ ] feed broken email
+- [x] home view
+- [x] manage feed view
+- [x] queue checking job
+- [x] initial feed add action
 - [ ] unconfirmed cleanup
+- [ ] production logging
+- [ ] Mailgun setup
