@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Mail;
  * @property string $email
  * @property string $type
  * @property string $status
+ * @property string $last_checked
  * @property string $last_notified
  */
 class Feed extends Model
@@ -75,5 +76,24 @@ class Feed extends Model
         $this->save();
 
         return true;
+    }
+
+    public function latestCheck(): Check|null
+    {
+        return Check::query()
+            ->where('feed_id', $this->id)
+            ->orderBy('updated_at', 'DESC')
+            ->limit(1)
+            ->first();
+    }
+
+    public function previousCheck(): Check|null
+    {
+        return Check::query()
+            ->where('feed_id', $this->id)
+            ->orderBy('updated_at', 'DESC')
+            ->offset(1)
+            ->limit(1)
+            ->first();
     }
 }

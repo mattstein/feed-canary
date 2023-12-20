@@ -1,7 +1,16 @@
 {% extends "_layout.twig" %}
 
+{% set last = feed.latestCheck() %}
+{% set prev = feed.previousCheck() %}
+
 {% block main %}
   <h1>{{ feed.url }}</h1>
+  {% if last %}
+    <p>Last checked {{ last.updated_at.diffForHumans() }}, {{ last.status }} and {{ last.is_valid ? 'valid' : 'invalid' }}.</p>
+  {% endif %}
+  {% if prev %}
+    <p>Previously checked {{ last.updated_at.diffForHumans() }}, {{ last.status }} and {{ last.is_valid ? 'valid' : 'invalid' }}.</p>
+  {% endif %}
   <pre>{{ feed | json_encode }}</pre>
   <form action="{{ feed.deleteAction() }}" method="post">
     {{ csrf_field() }}
