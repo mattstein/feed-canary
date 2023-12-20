@@ -83,7 +83,6 @@ class Feed extends Model
         return Check::query()
             ->where('feed_id', $this->id)
             ->orderBy('updated_at', 'DESC')
-            ->limit(1)
             ->first();
     }
 
@@ -92,8 +91,7 @@ class Feed extends Model
         return Check::query()
             ->where('feed_id', $this->id)
             ->orderBy('updated_at', 'DESC')
-            ->offset(1)
-            ->limit(1)
+            ->skip(1)
             ->first();
     }
 }

@@ -9,7 +9,7 @@
     <p>Last checked {{ last.updated_at.diffForHumans() }}, {{ last.status }} and {{ last.is_valid ? 'valid' : 'invalid' }}.</p>
   {% endif %}
   {% if prev %}
-    <p>Previously checked {{ last.updated_at.diffForHumans() }}, {{ last.status }} and {{ last.is_valid ? 'valid' : 'invalid' }}.</p>
+    <p>Previously checked {{ prev.updated_at.diffForHumans() }}, {{ prev.status }} and {{ prev.is_valid ? 'valid' : 'invalid' }}.</p>
   {% endif %}
   <pre>{{ feed | json_encode }}</pre>
   <form action="{{ feed.deleteAction() }}" method="post">
