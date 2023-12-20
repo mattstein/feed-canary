@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Mail;
 /**
  * @property string $id
  * @property string $url
+ * @property string $type
+ * @property string $status
+ * @property string $last_notified
  */
 class Feed extends Model
 {
