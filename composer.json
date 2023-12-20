@@ -12,6 +12,7 @@
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "rcrowe/twigbridge": "^0.14.1",
+        "sentry/sentry-laravel": "^4.1",
         "twig/twig": "^3.8"
     },
     "require-dev": {
