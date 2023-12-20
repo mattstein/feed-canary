@@ -35,7 +35,7 @@ class CheckFeeds implements ShouldQueue
         echo "Queuing " . $feeds->count() . " feeds.\n";
 
         foreach ($feeds->get() as $feed) {
-            CheckFeed::dispatch($feed);
+            CheckFeed::dispatch($feed->id);
         }
     }
 }

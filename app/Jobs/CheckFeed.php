@@ -11,14 +11,17 @@ use App\Models\Feed;
 class CheckFeed implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;
-    public Feed $feed;
+
+    protected ?Feed $feed = null;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Feed $feed)
+    public function __construct(string $feedId)
     {
-        $this->feed = $feed;
+        $this->feed = Feed::query()
+            ->where(['id' => $feedId])
+            ->first();
     }
 
     /**
@@ -26,6 +29,8 @@ class CheckFeed implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->feed->check();
+        if ($this->feed) {
+            $this->feed->check();
+        }
     }
 }
