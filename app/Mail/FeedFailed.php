@@ -33,6 +33,7 @@ class FeedFailed extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            to: $this->feed->email,
             subject: 'Feed Failed',
         );
     }

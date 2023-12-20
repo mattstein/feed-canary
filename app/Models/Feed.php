@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 /**
  * @property string $id
  * @property string $url
+ * @property string $email
  * @property string $type
  * @property string $status
  * @property string $last_notified
@@ -60,8 +61,7 @@ class Feed extends Model
         // TODO: only notify once on status change
 
         if (! $isValid) {
-            Mail::to($this->email)
-                ->send(new FeedFailed($this, $check));
+            Mail::send(new FeedFailed($this, $check));
 
             $this->update([
                 'last_notified' => now(),
