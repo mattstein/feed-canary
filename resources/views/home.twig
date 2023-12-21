@@ -1,53 +1,55 @@
 {% extends "_layout.twig" %}
 
 {% block main %}
-  <div class="intro">
-    <p>Feed Canary watches your feed and lets you know if it’s missing or invalid.</p>
-  </div>
-
-  <form action="/add" method="post">
-    {{ csrf_field() }}
-
-    <label for="url">Feed URL <small>for a valid RSS feed</small></label>
-    <input type="url" id="url" name="url" value="">
-
-    <label for="email">Email Address <small>to confirm and activate (not SPAM)</small></label>
-    <input type="email" id="email" name="email" value="">
-
-    <button>+ Confirm Feed</button>
-  </form>
-
-  <details class="faq">
-    <summary>Really Good Questions</summary>
-    <div>
-      <dl>
-        <dt>Will you sell my email address or send me a newsletter?</dt>
-        <dd>Eeew, no. It’s for confirming feed ownership and sending notifications.</dd>
-      </dl>
-      <dl>
-        <dt>What if I decide I don’t like this?</dt>
-        <dd>Once you confirm a feed, you can use that URL to come back here and delete the monitor.</dd>
-      </dl>
-      <dl>
-        <dt>How often are feeds checked?</dt>
-        <dd>Right now every five minutes or so, which I may have to adjust if this gets busy enough. At minimum, they should be checked at least once a day.</dd>
-      </dl>
-      <dl>
-        <dt>How many feeds can I add?</dt>
-        <dd>As many as you want! Please make sure they’re yours though. We’re on the honor system, and I reserve the right to reach out about anything questionable or remove submissions that seem spammy.</dd>
-      </dl>
-      <dl>
-        <dt>Why did you make this?</dt>
-        <dd>I love RSS and manage to break my feeds a lot. If you’re here then maybe you’re in the same boat—so I made this little app for both of us.</dd>
-      </dl>
-      <dl>
-        <dt>What if this site gets crushed by people eager to monitor feeds?</dt>
-        <dd>Good, I guess? I’ll do a better job of leaving notes here and do what I can to keep it useful.</dd>
-      </dl>
-      <dl>
-        <dt>What if I have a problem or another question?</dt>
-        <dd><a href="mailto:m@ttste.in">Send me an email</a>, please! I’d love to hear from you.</dd>
-      </dl>
+  <div class="container">
+    <div class="intro">
+      <p>Feed Canary watches your feed and lets you know if it’s missing or invalid.</p>
     </div>
-  </details>
+
+    <form action="/add" method="post">
+      {{ csrf_field() }}
+
+      <label for="url">Feed URL <small>for a valid RSS feed</small></label>
+      <input type="url" id="url" name="url" value="">
+
+      <label for="email">Email Address <small>to confirm and activate (not SPAM)</small></label>
+      <input type="email" id="email" name="email" value="">
+
+      <button>+ Confirm Feed</button>
+    </form>
+
+    <details class="faq">
+      <summary>Really Good Questions</summary>
+      <div>
+        <dl>
+          <dt>Will you sell my email address or send me a newsletter?</dt>
+          <dd>Eeew, no. It’s for confirming feed ownership and sending notifications.</dd>
+        </dl>
+        <dl>
+          <dt>What if I decide I don’t like this?</dt>
+          <dd>Once you confirm a feed, you can use that URL to come back here and delete the monitor.</dd>
+        </dl>
+        <dl>
+          <dt>How often are feeds checked?</dt>
+          <dd>Right now every five minutes or so, which I may have to adjust if this gets busy enough. At minimum, they should be checked at least once a day.</dd>
+        </dl>
+        <dl>
+          <dt>How many feeds can I add?</dt>
+          <dd>As many as you want! Please make sure they’re yours though. We’re on the honor system, and I reserve the right to reach out about anything questionable or remove submissions that seem spammy.</dd>
+        </dl>
+        <dl>
+          <dt>Why did you make this?</dt>
+          <dd>I love RSS and manage to break my feeds a lot. If you’re here then maybe you’re in the same boat—so I made this little app for both of us.</dd>
+        </dl>
+        <dl>
+          <dt>What if this site gets crushed by people eager to monitor feeds?</dt>
+          <dd>Good, I guess? I’ll do a better job of leaving notes here and do what I can to keep it useful.</dd>
+        </dl>
+        <dl>
+          <dt>What if I have a problem or another question?</dt>
+          <dd><a href="mailto:m@ttste.in">Send me an email</a>, please! I’d love to hear from you.</dd>
+        </dl>
+      </div>
+    </details>
+  </div>
 {% endblock %}

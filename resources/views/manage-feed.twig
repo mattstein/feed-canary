@@ -4,23 +4,35 @@
 {% set prev = feed.previousCheck() %}
 
 {% block main %}
-  <h1>{{ feed.url }}</h1>
+  <div class="container">
+    <h1 class="feed-url">
+      <a href="{{ feed.url }}">
+        {{- feed.url -}}
+      </a>
+    </h1>
 
-  {% if not feed.confirmed %}
-    <p>Check your email for a link to activate this monitor.</p>
-  {% else %}
-    {% if last %}
-      <p>Last checked {{ last.updated_at.diffForHumans() }}, {{ last.status }} and {{ last.is_valid ? 'valid' : 'invalid' }}.</p>
+    {% if not feed.confirmed %}
+      <p>Check your email for a link to activate this monitor, or push the big button to delete it.</p>
+    {% else %}
+      {% if feed.status == 'healthy' %}
+        <p>✅ Looks great!{% if last and last.is_valid %} <code>{{ last.status }}</code> response with valid markup.{% endif %}</p>
+      {% else %}
+        <p>⛔️ Something’s not right. The last status code was <code>{{ last.status }}</code>, {{ last.is_valid ? 'but the markup was valid.' : 'but the response was either missing or invalid.' }}</p>
+      {% endif %}
+
+      <hr/>
+      {% if last %}
+        <p>Last checked {{ last.updated_at.diffForHumans() }}.</p>
+      {% endif %}
+      {% if prev %}
+        <p>Previously {{ prev.is_valid ? 'valid' : 'invalid' }} when we checked {{ prev.updated_at.diffForHumans() }}.</p>
+      {% endif %}
     {% endif %}
-    {% if prev %}
-      <p>Previously checked {{ prev.updated_at.diffForHumans() }}, {{ prev.status }} and {{ prev.is_valid ? 'valid' : 'invalid' }}.</p>
-    {% endif %}
-    <pre>{{ feed | json_encode }}</pre>
-  {% endif %}
-  <form action="{{ feed.deleteAction() }}" method="post">
-    {{ csrf_field() }}
-    <button name="delete" value="delete" class="danger">
-      {{ 'Delete' }}
-    </button>
-  </form>
+    <form action="{{ feed.deleteAction() }}" method="post">
+      {{ csrf_field() }}
+      <button name="delete" value="delete" class="danger">
+        {{- 'Delete' -}}
+      </button>
+    </form>
+  </div>
 {% endblock %}
