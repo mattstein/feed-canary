@@ -19,7 +19,7 @@
   {% endif %}
   <form action="{{ feed.deleteAction() }}" method="post">
     {{ csrf_field() }}
-    <button name="delete" value="delete">
+    <button name="delete" value="delete" class="danger">
       {{ 'Delete' }}
     </button>
   </form>

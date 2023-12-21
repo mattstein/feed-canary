@@ -1,0 +1,108 @@
+html {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  font-weight: normal;
+  background-color: #F6C85A;
+  color: #000;
+  font-size: 1.25rem;
+  line-height: 1.8;
+}
+
+a {
+  text-decoration: none;
+  color: #6E12F5;
+}
+
+.container {
+  max-width: 680px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 2rem;
+  padding-left: 2rem;
+}
+
+nav {
+  margin: 4rem 0;
+}
+
+.site-name {
+  font-weight: bold;
+}
+
+.intro {
+  margin-bottom: 4rem;
+}
+
+.embiggened {
+  font-size: 150%;
+}
+
+label {
+  font-weight: bold;
+}
+
+label small {
+  font-weight: normal;
+}
+
+input {
+  background: rgba(255,255,255,1);
+  border: none;
+  padding: 1rem;
+  border-radius: 10px;
+  color: #000;
+  font-size: 1rem;
+  display: block;
+  width: 100%;
+  appearance: none;
+  box-sizing: border-box;
+}
+
+button {
+  background: #6E12F5;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 10px;
+  border: none;
+  display: block;
+  width: 100%;
+}
+
+input {
+  margin-bottom: 1rem;
+}
+
+button {
+  margin-top: 2rem;
+}
+
+button.danger {
+  background: #E93353;
+}
+
+footer {
+  margin-top: 4rem;
+}
+
+footer p {
+  font-size: 75%;
+}
+
+.faq {
+  margin-top: 4rem;
+}
+
+dl {
+  font-size: 75%;
+}
+
+dt,
+dd {
+  margin-left: 0;
+}
+
+dt {
+  font-weight: bold;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}

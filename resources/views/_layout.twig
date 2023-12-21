@@ -5,22 +5,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Feed Canary</title>
   <meta name="color-scheme" content="light dark">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  <link rel="stylesheet" href="{{ url('/app.css') }}">
 </head>
 
 <body>
 <header class="container">
   <nav>
-    <ul>
-      <li><a href="{{ url('/') }}"><strong>{{ "Feed Canary" }}</strong></a></li>
-    </ul>
-    {#
-    <ul>
-      <li><a href="#">Link</a></li>
-      <li><a href="#">Link</a></li>
-      <li><a href="#" role="button">Button</a></li>
-    </ul>
-    #}
+    <a href="{{ url('/') }}" class="site-name">
+      {{- "Feed Canary" -}}
+    </a>
   </nav>
 </header>
 
@@ -29,9 +22,8 @@
   {% endblock main %}
 </main>
 
-{#
-<footer>
+<footer class="container">
+  <p>A little project from <a href="https://mattstein.com">Matt Stein</a>.</p>
 </footer>
-#}
 </body>
 </html>
