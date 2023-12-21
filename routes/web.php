@@ -17,4 +17,5 @@ Route::get('/feed/{id}', function (string $id) {
     // TODO: or 404
 });
 
+Route::get('/feed/{id}/confirm/{code}', [FeedController::class, 'confirm']);
 Route::post('/feed/{id}/delete', [FeedController::class, 'delete']);

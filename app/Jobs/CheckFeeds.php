@@ -26,11 +26,14 @@ class CheckFeeds implements ShouldQueue
      */
     public function handle(): void
     {
-        $cutoff = Carbon::now()->subMinutes(10);
-
+        // Get confirmed feeds that were last checked more than five minutes ago (or haven’t been checked yet)
         $feeds = Feed::query()
-            ->where('last_checked', '<=', $cutoff)
-            ->orWhere('last_checked', null);
+            ->where(function ($query) {
+                $cutoff = Carbon::now()->subMinutes(5);
+                $query->where('last_checked', '<=', $cutoff)
+                    ->orWhere('last_checked', null);
+            })
+            ->where('confirmed', '=', 1);
 
         echo "Queuing " . $feeds->count() . " feeds.\n";
 

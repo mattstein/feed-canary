@@ -9,6 +9,6 @@ class Check extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['feed_id', 'status', 'headers', 'body', 'is_valid'];
+    protected $fillable = ['feed_id', 'status', 'headers', 'is_valid'];
 
 }

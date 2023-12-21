@@ -29,7 +29,6 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->string('status')->nullable();
             $table->text('headers')->nullable();
-            $table->text('body')->nullable();
             $table->boolean('is_valid')->nullable();
             $table->timestamps();
         });

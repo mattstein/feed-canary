@@ -20,13 +20,14 @@ use Illuminate\Support\Facades\Mail;
  * @property string $status
  * @property string $last_checked
  * @property string $last_notified
+ * @property string $confirmation_code
  */
 class Feed extends Model
 {
     use HasFactory;
     use HasUuids;
 
-    protected $fillable = ['url', 'email', 'type', 'status', 'last_checked', 'last_notified'];
+    protected $fillable = ['url', 'email', 'type', 'status', 'confirmed', 'last_checked', 'last_notified', 'confirmation_code'];
 
     public const STATUS_HEALTHY = 'healthy';
     public const STATUS_FAILING = 'failing';
@@ -34,6 +35,11 @@ class Feed extends Model
     public function manageUrl(): string
     {
         return url('/feed/' . $this->id);
+    }
+
+    public function confirmUrl(): string
+    {
+        return url('/feed/' . $this->id . '/confirm/' . $this->confirmation_code);
     }
 
     public function deleteAction(): string

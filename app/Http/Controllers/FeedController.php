@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Feed;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use App\Mail\ConfirmFeed;
 
 class FeedController extends Controller
 {
@@ -20,12 +20,14 @@ class FeedController extends Controller
             'url' => $feedUrl,
             'email' => $request->input('email'),
             'type' => $response->header('content-type'),
+            'confirmation_code' => Str::random(),
         ]);
 
         $feed->check();
 
-        // TODO: make sure URL is unique
-        // TODO: email opt in
+        // TODO: stop if the feed check fails or it wasn’t unique to start with
+
+        Mail::send(new ConfirmFeed($feed));
 
         return redirect($feed->manageUrl());
 //        return view('manage-feed', [
@@ -33,9 +35,21 @@ class FeedController extends Controller
 //        ]);
     }
 
-    public function confirm()
+    public function confirm(string $id, string $code)
     {
+        $feed = Feed::query()
+            ->find($id);
 
+        if ($feed && $feed->confirmation_code === $code) {
+            $feed->update([
+                'confirmed' => true,
+                'confirmation_code' => null,
+            ]);
+        }
+
+        return redirect($feed->manageUrl());
+
+        // TODO: handle failure
     }
 
     public function delete(string $id)
