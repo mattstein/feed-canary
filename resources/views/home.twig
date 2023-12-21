@@ -10,10 +10,10 @@
       {{ csrf_field() }}
 
       <label for="url">Feed URL <small>for a valid RSS feed</small></label>
-      <input type="url" id="url" name="url" value="">
+      <input type="url" id="url" name="url" value="" required>
 
       <label for="email">Email Address <small>to confirm and activate (not SPAM)</small></label>
-      <input type="email" id="email" name="email" value="">
+      <input type="email" id="email" name="email" value="" required>
 
       <button>+ Confirm Feed</button>
     </form>
