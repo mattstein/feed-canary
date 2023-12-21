@@ -17,7 +17,7 @@
       {% if feed.status == 'healthy' %}
         <p>✅ Looks great!{% if last and last.is_valid %} <code>{{ last.status }}</code> response with valid markup.{% endif %}</p>
       {% else %}
-        <p>⛔️ Something’s not right. The last status code was <code>{{ last.status }}</code>, {{ last.is_valid ? 'but the markup was valid.' : 'but the response was either missing or invalid.' }}</p>
+        <p>⛔️ Something’s not right. The last status code was <code>{{ last.status }}</code>{% if not last.is_valid %} and the feed failed to validate{% endif %}.</p>
       {% endif %}
 
       <hr/>
