@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class FeedFailed extends Mailable
+class FeedFixed extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -33,7 +33,7 @@ class FeedFailed extends Mailable
     {
         return new Envelope(
             to: $this->feed->email,
-            subject: 'Feed Failed',
+            subject: 'Feed Fixed',
         );
     }
 
@@ -43,7 +43,7 @@ class FeedFailed extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mail.feed-failed',
+            view: 'mail.feed-fixed',
             with: [
                 'feed' => $this->feed,
                 'check' => $this->check,

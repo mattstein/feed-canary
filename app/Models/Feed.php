@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Mail\FeedFailed;
+use App\Mail\FeedFixed;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,9 @@ class Feed extends Model
     use HasUuids;
 
     protected $fillable = ['url', 'email', 'type', 'status', 'last_checked', 'last_notified'];
+
+    public const STATUS_HEALTHY = 'healthy';
+    public const STATUS_FAILING = 'failing';
 
     public function manageUrl(): string
     {
@@ -54,26 +58,26 @@ class Feed extends Model
             'feed_id' => $this->id,
             'status' => $response->status(),
             'headers' => json_encode($response->headers()),
-            //'body' => $response->body(),
             'is_valid' => $isValid,
         ]);
 
         $this->last_checked = now();
-        $this->status = $isValid ? 'healthy' : 'failing';
+        $this->status = $isValid ? self::STATUS_HEALTHY : self::STATUS_FAILING;
 
         // TODO: only notify once on status change
 
-        if (! $isValid) {
-            Log::debug('Sending failure notification');
-            try {
+        if ($this->statusHasChanged()) {
+            if (! $isValid) {
+                Log::debug('Sending failure notification');
                 Mail::send(new FeedFailed($this, $check));
                 $this->last_notified = now();
-            } catch (\Exception $e) {
-
+            } elseif ( ! empty($this->previousCheck())) {
+                Log::debug('Sending fixed notification');
+                Mail::send(new FeedFixed($this, $check));
+                $this->last_notified = now();
             }
         }
 
-        Log::debug('Updating feed record');
 
         if ( ! $this->save()) {
             Log::error('Failed to save feed ' . $this->id);
@@ -97,5 +101,19 @@ class Feed extends Model
             ->orderBy('updated_at', 'DESC')
             ->skip(1)
             ->first();
+    }
+
+    private function statusHasChanged(): bool
+    {
+        $currentStatus = $this->latestCheck()->status ?? null;
+        $previousStatus = $this->previousCheck()->status ?? null;
+
+        return $currentStatus !== $previousStatus;
+    }
+
+    private function shouldSendNotification(): bool
+    {
+        // Is this a new status?
+        return true;
     }
 }
