@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Fungku\MarkupValidator\FeedValidator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -38,14 +39,17 @@ class Feed extends Model
 
     public function check(): bool
     {
+        Log::debug('Checking ' . $this->url);
         $response = Http::get($this->url);
         $isValid = false;
 
         if ($response->successful()) {
+            Log::debug('Check successful');
             $validator = new FeedValidator();
             $isValid = $validator->validate($this->url);
         }
 
+        Log::debug('Creating check record');
         $check = Check::create([
             'feed_id' => $this->id,
             'status' => $response->status(),
@@ -60,6 +64,7 @@ class Feed extends Model
         // TODO: only notify once on status change
 
         if (! $isValid) {
+            Log::debug('Sending failure notification');
             try {
                 Mail::send(new FeedFailed($this, $check));
                 $this->last_notified = now();
@@ -68,7 +73,11 @@ class Feed extends Model
             }
         }
 
-        $this->save();
+        Log::debug('Updating feed record');
+
+        if ( ! $this->save()) {
+            Log::error('Failed to save feed ' . $this->id);
+        }
 
         return $isValid;
     }
