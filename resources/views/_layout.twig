@@ -6,6 +6,7 @@
   <title>{% if pageTitle is defined and pageTitle %}{{ pageTitle }} - {% endif %}Feed Canary</title>
   <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="{{ url('/app.css') }}">
+  {% include "parts/icons.twig" %}
   <script defer data-domain="feedcanary.com" src="https://plausible.m7n.io/js/script.js"></script>
 </head>
 
