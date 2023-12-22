@@ -55,7 +55,7 @@ class Feed extends Model
     public function check(): bool
     {
         Log::debug('Checking ' . $this->url);
-        $response = Http::get($this->url);
+        $response = Http::withUserAgent('Feed Canary')->get($this->url);
         $isValid = false;
 
         if ($response->successful()) {
