@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Models\Feed;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Carbon\Carbon;
-use App\Models\Feed;
 use Illuminate\Support\Facades\Log;
 
-class CheckFeeds implements ShouldQueue
+class PruneUnconfirmedFeeds implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable;
 
@@ -27,19 +27,17 @@ class CheckFeeds implements ShouldQueue
      */
     public function handle(): void
     {
-        // Get confirmed feeds that were last checked more than five minutes ago (or haven’t been checked yet)
-        $feeds = Feed::query()
+        $abandonedFeeds = Feed::query()
             ->where(function ($query) {
-                $cutoff = Carbon::now()->subMinutes(5);
+                $cutoff = Carbon::now()->subDays(3);
                 $query->where('last_checked', '<=', $cutoff)
                     ->orWhere('last_checked', null);
             })
-            ->where('confirmed', '=', 1);
+            ->where('confirmed', '!=', 1);
 
-        Log::debug("Queuing " . $feeds->count() . " feeds.");
-
-        foreach ($feeds->get() as $feed) {
-            CheckFeed::dispatch($feed->id);
+        foreach ($abandonedFeeds->get() as $abandonedFeed) {
+            Log::info('Deleting feed ' . $abandonedFeed->id);
+            $abandonedFeed->delete();
         }
     }
 }
