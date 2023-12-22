@@ -42,6 +42,11 @@ class Feed extends Model
         return url('/feed/' . $this->id . '/confirm/' . $this->confirmation_code);
     }
 
+    public function validatorUrl(): string
+    {
+        return 'https://validator.w3.org/feed/check.cgi?url=' . urlencode($this->url);
+    }
+
     public function deleteAction(): string
     {
         return url('/feed/' . $this->id . '/delete');

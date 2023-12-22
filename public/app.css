@@ -12,6 +12,11 @@ a {
   color: #6E12F5;
 }
 
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .container {
   max-width: 680px;
   margin-right: auto;
@@ -30,10 +35,6 @@ nav {
 
 .intro {
   margin-bottom: 4rem;
-}
-
-.embiggened {
-  font-size: 150%;
 }
 
 label {
@@ -66,18 +67,25 @@ button {
   border: none;
   display: block;
   width: 100%;
-}
-
-input {
-  margin-bottom: 1rem;
-}
-
-button {
   margin-top: 2rem;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #6311D4;
 }
 
 button.danger {
   background: #E93353;
+}
+
+button.danger:hover {
+  background: #D02C4C;
+}
+
+input {
+  margin-bottom: 1rem;
 }
 
 footer {

@@ -11,10 +11,11 @@ Route::get('/', function () {
 Route::post('/add', [FeedController::class, 'create']);
 
 Route::get('/feed/{id}', function (string $id) {
-    $feed = Feed::query()
-        ->find($id);
+    if (! $feed = Feed::query()->find($id)) {
+        abort(404);
+    }
+
     return view('manage-feed', ['feed' => $feed]);
-    // TODO: or 404
 });
 
 Route::get('/feed/{id}/confirm/{code}', [FeedController::class, 'confirm']);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Feed Canary</title>
+  <title>{% if pageTitle is defined and pageTitle %}{{ pageTitle }} - {% endif %}Feed Canary</title>
   <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="{{ url('/app.css') }}">
   <script defer data-domain="feedcanary.com" src="https://plausible.m7n.io/js/script.js"></script>
