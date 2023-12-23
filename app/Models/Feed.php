@@ -193,6 +193,7 @@ class Feed extends Model
             'application/rss+xml',
             'application/atom+xml',
             'application/json',
+            'application/x-rss+xml',
             'text/xml',
         ];
 
