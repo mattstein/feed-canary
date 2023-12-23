@@ -1,15 +1,27 @@
+:root {
+  --bg-color: #F6C85A;
+  --text-color: #000;
+  --link-color: #6E12F5;
+  --link-color-hover: #6311D4;
+  --input-text-color: #000;
+  --input-bg-color: #fff;
+  --danger-color: #E93353;
+  --danger-color-hover: #D02C4C;
+  --hr-color: #000;
+}
+
 html {
   font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   font-weight: normal;
-  background-color: #F6C85A;
-  color: #000;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-size: 1.25rem;
   line-height: 1.8;
 }
 
 a {
   text-decoration: none;
-  color: #6E12F5;
+  color: var(--link-color);
 }
 
 a:hover {
@@ -46,11 +58,11 @@ label small {
 }
 
 input {
-  background: rgba(255,255,255,1);
+  background: var(--input-bg-color);
   border: none;
   padding: 1rem;
   border-radius: 10px;
-  color: #000;
+  color: var(--input-text-color);
   font-size: 1rem;
   display: block;
   width: 100%;
@@ -59,7 +71,7 @@ input {
 }
 
 button {
-  background: #6E12F5;
+  background: var(--link-color);
   padding: 1rem;
   font-size: 1rem;
   font-weight: bold;
@@ -73,15 +85,15 @@ button {
 }
 
 button:hover {
-  background: #6311D4;
+  background: var(--link-color-hover);
 }
 
 button.danger {
-  background: #E93353;
+  background: var(--danger-color);
 }
 
 button.danger:hover {
-  background: #D02C4C;
+  background: var(--danger-color-hover);
 }
 
 input {
@@ -126,13 +138,21 @@ dt {
 
 hr {
   border: none;
-  border-top: 1px solid black;
+  border-top: 1px solid var(--hr-color);
   margin-top: 4rem;
   margin-bottom: 2rem;
 }
 
 .form-error {
   margin-bottom: 2rem;
-  color: #E93353;
+  color: var(--danger-color);
   font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #191C20;
+    --text-color: #DADADA;
+    --hr-color: #36393E;
+  }
 }
