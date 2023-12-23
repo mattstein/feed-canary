@@ -20,7 +20,7 @@
         <p>✅ Looks great!{% if last and last.is_valid %} <code>{{ last.status }}</code> response with valid markup.{% endif %}</p>
       {% else %}
         <p>⛔️ Broken feed! Status code was <code>{{ last.status }}</code>{% if not last.is_valid %} and it’s invalid{% endif %}.</p>
-        <p><a href="{{ feed.validatorUrl() }}" target="_blank">Open in W3C Validation Service →</a></p>
+        <p><a href="{{ feed.validatorUrl() }}" target="_blank">Troubleshoot with Validation Service →</a></p>
       {% endif %}
 
       <hr/>
