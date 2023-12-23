@@ -19,6 +19,7 @@ use JsonSchema\Validator;
  * @property string $email
  * @property string $type
  * @property string $status
+ * @property bool   $confirmed
  * @property string $last_checked
  * @property string $last_notified
  * @property string $confirmation_code
@@ -129,7 +130,7 @@ class Feed extends Model
         $this->last_checked = now();
         $this->status = $isValid ? self::STATUS_HEALTHY : self::STATUS_FAILING;
 
-        if ($this->statusHasChanged()) {
+        if ($this->confirmed && $this->statusHasChanged()) {
             if (! $isValid) {
                 Log::debug('Sending failure notification');
                 Mail::send(new FeedFailed($this, $check));
@@ -183,6 +184,25 @@ class Feed extends Model
         }
 
         return self::FORMAT_XML;
+    }
+
+    public static function isValidResponseType($type = ''): bool
+    {
+        $validTypes = [
+            'application/xml',
+            'application/rss+xml',
+            'application/atom+xml',
+            'application/json',
+            'text/xml',
+        ];
+
+        foreach ($validTypes as $validType) {
+            if (str_contains($type, $validType)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

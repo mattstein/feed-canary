@@ -6,14 +6,20 @@
       <p>Feed Canary watches your RSS feed and emails you if it’s missing or invalid.</p>
     </div>
 
+    {% if errors is not empty %}
+      <div class="form-error">
+        {{ errors.first() }}
+      </div>
+    {% endif %}
+
     <form action="/add" method="post">
       {{ csrf_field() }}
 
       <label for="url">Feed URL <small>for a valid RSS feed</small></label>
-      <input type="url" id="url" name="url" value="" required>
+      <input type="url" id="url" name="url" value="{{ old('url') }}" required>
 
       <label for="email">Email Address <small>to confirm and activate (not SPAM)</small></label>
-      <input type="email" id="email" name="email" value="" required>
+      <input type="email" id="email" name="email" value="{{ old('email') }}" required>
 
       <button>+ Confirm Feed</button>
     </form>

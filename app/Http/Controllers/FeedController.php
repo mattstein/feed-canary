@@ -6,6 +6,7 @@ use App\Models\Feed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use App\Mail\ConfirmFeed;
 
@@ -15,24 +16,28 @@ class FeedController extends Controller
     {
         $feedUrl = $request->input('url');
         $response = Http::get($feedUrl);
+        $contentType = $response->header('content-type');
+
+        if ( ! Feed::isValidResponseType($contentType)) {
+            $request->flash();
+            return Redirect::back()
+                ->withErrors([
+                    'url' => 'That URL doesn’t return a JSON or RSS feed.'
+                ]);
+        }
 
         $feed = Feed::create([
             'url' => $feedUrl,
             'email' => $request->input('email'),
-            'type' => $response->header('content-type'),
+            'type' => $contentType,
             'confirmation_code' => Str::random(),
         ]);
 
         $feed->check();
 
-        // TODO: stop if the feed check fails or it wasn’t unique to start with
-
         Mail::send(new ConfirmFeed($feed));
 
         return redirect($feed->manageUrl());
-//        return view('manage-feed', [
-//            'feed' => $feed,
-//        ]);
     }
 
     public function confirm(string $id, string $code)

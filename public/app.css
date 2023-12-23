@@ -130,3 +130,9 @@ hr {
   margin-top: 4rem;
   margin-bottom: 2rem;
 }
+
+.form-error {
+  margin-bottom: 2rem;
+  color: #E93353;
+  font-weight: bold;
+}
