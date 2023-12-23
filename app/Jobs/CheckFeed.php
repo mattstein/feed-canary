@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Models\Feed;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Models\Feed;
 
 class CheckFeed implements ShouldQueue
 {
