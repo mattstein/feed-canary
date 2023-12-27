@@ -123,13 +123,19 @@ class Feed extends Model
                 try {
                     $feed = Reader::importString($content);
                     $parses = true;
+                    Log::debug('Laminas\Feed\Reader parsed feed successfully');
                 } catch (RuntimeException|\InvalidArgumentException $exception) {
                     Log::debug('Laminas\Feed\Reader could not parse the feed');
                 }
 
                 if ($parses) {
-                    $validator = new FeedValidator();
-                    $isValid = $validator->validate($this->url);
+                    try {
+                        $validator = new FeedValidator();
+                        $isValid = $validator->validate($this->url);
+                    } catch(\ErrorException $exception) {
+                        // Last-ditch effort if the W3C validator returned a 500 error
+                        $isValid = $this->isValidWithValidatorDotOrg();
+                    }
                 }
             }
         }
@@ -240,5 +246,19 @@ class Feed extends Model
     {
         // Is this a new status?
         return true;
+    }
+
+    private function isValidWithValidatorDotOrg(): bool
+    {
+        $response = Http::withUserAgent('Feed Canary')
+            ->get('https://www.feedvalidator.org/check.cgi?url=' . urlencode($this->url));
+
+        if ($responseText = $response->getBody()->getContents()) {
+            if (str_contains($responseText, 'Congratulations!') && str_contains($responseText, 'This is a valid')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
