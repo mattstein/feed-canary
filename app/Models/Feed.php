@@ -133,6 +133,7 @@ class Feed extends Model
                         $validator = new FeedValidator();
                         $isValid = $validator->validate($this->url);
                     } catch(\ErrorException $exception) {
+                        Log::debug('W3C validator had a problem');
                         // Last-ditch effort if the W3C validator returned a 500 error
                         $isValid = $this->isValidWithValidatorDotOrg();
                     }
