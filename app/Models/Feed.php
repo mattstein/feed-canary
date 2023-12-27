@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use JsonSchema\Validator;
+use Laminas\Feed\Exception\RuntimeException;
+use Laminas\Feed\Reader\Reader;
 
 /**
  * @property string $id
@@ -102,20 +104,33 @@ class Feed extends Model
 
         if ($response->successful()) {
             Log::debug('Check successful');
+            $content = $response->getBody()->getContents();
 
             if ($this->getFormat() === self::FORMAT_JSON) {
                 Log::debug('Validating JSON schema');
                 $schemaDefinition = resource_path('schema-v1.1.json');
                 $jsonSchemaObject = json_decode(file_get_contents($schemaDefinition));
-                $data = json_decode($response->getBody()->getContents());
+                $data = json_decode($content);
 
                 $validator = new Validator;
                 $validator->validate($data, $jsonSchemaObject);
                 $isValid = $validator->isValid();
             } else {
                 Log::debug('Validating XML schema');
-                $validator = new FeedValidator();
-                $isValid = $validator->validate($this->url);
+
+                $parses = false;
+
+                try {
+                    $feed = Reader::importString($content);
+                    $parses = true;
+                } catch (RuntimeException|\InvalidArgumentException $exception) {
+                    Log::debug('Laminas\Feed\Reader could not parse the feed');
+                }
+
+                if ($parses) {
+                    $validator = new FeedValidator();
+                    $isValid = $validator->validate($this->url);
+                }
             }
         }
 
@@ -131,18 +146,18 @@ class Feed extends Model
         $this->status = $isValid ? self::STATUS_HEALTHY : self::STATUS_FAILING;
 
         if ($this->confirmed && $this->statusHasChanged()) {
-            if (! $isValid) {
+            if (!$isValid) {
                 Log::debug('Sending failure notification');
                 Mail::send(new FeedFailed($this, $check));
                 $this->last_notified = now();
-            } elseif ( ! empty($this->previousCheck())) {
+            } elseif (!empty($this->previousCheck())) {
                 Log::debug('Sending fixed notification');
                 Mail::send(new FeedFixed($this, $check));
                 $this->last_notified = now();
             }
         }
 
-        if ( ! $this->save()) {
+        if (!$this->save()) {
             Log::error('Failed to save feed ' . $this->id);
         }
 
