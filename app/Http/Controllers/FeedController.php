@@ -18,7 +18,7 @@ class FeedController extends Controller
         $response = Http::get($feedUrl);
         $contentType = $response->header('content-type');
 
-        if ( ! Feed::isValidResponseType($contentType)) {
+        if (!Feed::isValidResponseType($contentType)) {
             $request->flash();
             return Redirect::back()
                 ->withErrors([
@@ -45,6 +45,10 @@ class FeedController extends Controller
         $feed = Feed::query()
             ->find($id);
 
+        if (!$feed) {
+            abort(404);
+        }
+
         if ($feed && $feed->confirmation_code === $code) {
             $feed->update([
                 'confirmed' => true,
@@ -61,6 +65,10 @@ class FeedController extends Controller
     {
         $feed = Feed::query()
             ->find($id);
+
+        if (!$feed) {
+            abort(404);
+        }
 
         $feed->delete();
 
