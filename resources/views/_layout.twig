@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>{% if pageTitle is defined and pageTitle %}{{ pageTitle }} - {% endif %}Feed Canary</title>
+{% if robots is defined %}  <meta name="robots" content="{{ robots }}">
+{% endif %}
   <meta name="color-scheme" content="light dark">
   <link rel="stylesheet" href="{{ url('/app.css') }}">
   {% include "parts/icons.twig" %}
