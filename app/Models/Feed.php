@@ -123,9 +123,9 @@ class Feed extends Model
                 try {
                     $feed = Reader::importString($content);
                     $parses = true;
-                    Log::debug('Laminas\Feed\Reader parsed feed successfully');
+                    Log::debug('Laminas\Feed\Reader read successfully');
                 } catch (RuntimeException|\InvalidArgumentException $exception) {
-                    Log::debug('Laminas\Feed\Reader could not parse the feed');
+                    Log::debug('Laminas\Feed\Reader could not parse feed');
                 }
 
                 if ($parses) {
