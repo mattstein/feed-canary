@@ -100,8 +100,13 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'app@feedcanary.com'),
+        'name' => env('MAIL_FROM_NAME', 'Feed Canary'),
+    ],
+
+    'reply_to' => [
+        'address' => 'matts@omg.lol',
+        'name' => 'Matt Stein'
     ],
 
     /*
