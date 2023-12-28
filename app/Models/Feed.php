@@ -4,16 +4,14 @@ namespace App\Models;
 
 use App\Mail\FeedFailed;
 use App\Mail\FeedFixed;
-use Fungku\MarkupValidator\FeedValidator;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use JsonSchema\Validator;
-use Laminas\Feed\Exception\RuntimeException;
-use Laminas\Feed\Reader\Reader;
 
 /**
  * @property string $id
@@ -69,6 +67,10 @@ class Feed extends Model
      */
     public function confirmUrl(): string
     {
+        if (empty($this->confirmation_code)) {
+            return $this->manageUrl();
+        }
+
         return url('/feed/' . $this->id . '/confirm/' . $this->confirmation_code);
     }
 
@@ -104,41 +106,11 @@ class Feed extends Model
 
         if ($response->successful()) {
             Log::debug('Check successful');
-            $content = $response->getBody()->getContents();
 
-            if ($this->getFormat() === self::FORMAT_JSON) {
-                Log::debug('Validating JSON schema');
-                $schemaDefinition = resource_path('schema-v1.1.json');
-                $jsonSchemaObject = json_decode(file_get_contents($schemaDefinition));
-                $data = json_decode($content);
-
-                $validator = new Validator;
-                $validator->validate($data, $jsonSchemaObject);
-                $isValid = $validator->isValid();
-            } else {
-                Log::debug('Validating XML schema');
-
-                $parses = false;
-
-                try {
-                    $feed = Reader::importString($content);
-                    $parses = true;
-                    Log::debug('Laminas\Feed\Reader read successfully');
-                } catch (RuntimeException|\InvalidArgumentException $exception) {
-                    Log::debug('Laminas\Feed\Reader could not parse feed');
-                }
-
-                if ($parses) {
-                    try {
-                        $validator = new FeedValidator();
-                        $isValid = $validator->validate($this->url);
-                    } catch(\ErrorException $exception) {
-                        Log::debug('W3C validator had a problem');
-                        // Last-ditch effort if the W3C validator returned a 500 error
-                        $isValid = $this->isValidWithValidatorDotOrg();
-                    }
-                }
-            }
+            $isValid = (new Validator())->feedIsValid(
+                $this,
+                $response->getBody()->getContents()
+            );
         }
 
         Log::debug('Creating check record');
@@ -154,10 +126,12 @@ class Feed extends Model
 
         if ($this->confirmed && $this->statusHasChanged()) {
             if (!$isValid) {
+                // If a confirmed feed just started failing, send a notification
                 Log::debug('Sending failure notification');
                 Mail::send(new FeedFailed($this, $check));
                 $this->last_notified = now();
-            } elseif (!empty($this->previousCheck())) {
+            } elseif ($this->previousCheck() !== null) {
+                // If a confirmed feed just turned healthy, send a notification
                 Log::debug('Sending fixed notification');
                 Mail::send(new FeedFixed($this, $check));
                 $this->last_notified = now();
@@ -171,27 +145,32 @@ class Feed extends Model
         return $isValid;
     }
 
+    public function checks(): HasMany
+    {
+        return $this->hasMany(Check::class);
+    }
+
     /**
      * Returns the most recent check for the feed, if it exists.
+     *
      * @return Check|null
      */
-    public function latestCheck(): Check|null
+    public function latestCheck(): ?Check
     {
-        return Check::query()
-            ->where('feed_id', $this->id)
-            ->orderBy('updated_at', 'DESC')
+        return $this->checks()
+            ->latest()
             ->first();
     }
 
     /**
      * Returns the second-most-recent check for the feed, if it exists.
+     *
      * @return Check|null
      */
-    public function previousCheck(): Check|null
+    public function previousCheck(): ?Check
     {
-        return Check::query()
-            ->where('feed_id', $this->id)
-            ->orderBy('updated_at', 'DESC')
+        return $this->checks()
+            ->latest()
             ->skip(1)
             ->first();
     }
@@ -249,17 +228,4 @@ class Feed extends Model
         return true;
     }
 
-    private function isValidWithValidatorDotOrg(): bool
-    {
-        $response = Http::withUserAgent('Feed Canary')
-            ->get('https://www.feedvalidator.org/check.cgi?url=' . urlencode($this->url));
-
-        if ($responseText = $response->getBody()->getContents()) {
-            if (str_contains($responseText, 'Congratulations!') && str_contains($responseText, 'This is a valid')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
