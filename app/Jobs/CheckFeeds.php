@@ -2,15 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Models\Feed;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Carbon\Carbon;
-use App\Models\Feed;
 use Illuminate\Support\Facades\Log;
-
-class CheckFeeds implements ShouldQueue
+class CheckFeeds implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable;
 
