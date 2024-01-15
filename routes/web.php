@@ -44,3 +44,5 @@ Route::get('/feed/{id}', function (string $id) {
 
 Route::get('/feed/{id}/confirm/{code}', [FeedController::class, 'confirm']);
 Route::post('/feed/{id}/delete', [FeedController::class, 'delete']);
+
+Route::view('/updates', 'updates');

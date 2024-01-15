@@ -1,0 +1,24 @@
+{% extends "_layout.twig" %}
+
+{% set pageTitle = "Updates"  %}
+
+{% block main %}
+  <div class="container">
+    <h1>
+      {{- 'Updates' -}}
+    </h1>
+
+    <h2 id="2023-12-27">2023-12-27</h2>
+    <ul>
+      <li>Added a simple <a href="/status">status page</a>.</li>
+      <li>Expanded validation to use <a href="https://github.com/laminas/laminas-feed">laminas-feed</a>, and fall back to <a href="https://www.feedvalidator.org">feedvalidator.org</a> if the <a href="https://validator.w3.org/feed/">W3C validator</a> is offline.</li>
+    </ul>
+
+    <h2 id="2023-12-23">2023-12-23</h2>
+    <ul>
+      <li>Added support for JSON feeds.</li>
+      <li>Added dark mode support.</li>
+      <li>Improved signup form validation.</li>
+    </ul>
+  </div>
+{% endblock %}
