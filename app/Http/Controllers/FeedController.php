@@ -73,8 +73,6 @@ class FeedController extends Controller
         $feed->delete();
 
         return redirect('/')
-            ->with([
-                'message' => 'Feed deleted.'
-            ]);
+            ->with('message', 'Your feed monitor has been deleted.');
     }
 }

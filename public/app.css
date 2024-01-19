@@ -149,6 +149,11 @@ hr {
   font-weight: bold;
 }
 
+.form-message {
+  margin-bottom: 2rem;
+  font-weight: bold;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg-color: #191C20;

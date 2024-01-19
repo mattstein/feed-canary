@@ -2,6 +2,13 @@
 
 {% block main %}
   <div class="container">
+
+    {% if session('message') %}
+      <div class="form-message">
+        {{ session('message') }}
+      </div>
+    {% endif %}
+
     <div class="intro">
       <p>Feed Canary watches your RSS feed and emails you if it’s missing or invalid.</p>
     </div>
