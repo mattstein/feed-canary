@@ -16,6 +16,10 @@ class Kernel extends ConsoleKernel
     {
         $schedule->job(new CheckFeeds())->everyFiveMinutes();
         $schedule->job(new PruneUnconfirmedFeeds())->daily();
+
+        $schedule->command('backup:clean')->daily()->at('01:00');
+        $schedule->command('backup:run')->daily()->at('01:30');
+        $schedule->command('backup:monitor')->daily()->at('02:00');
     }
 
     /**

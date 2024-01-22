@@ -27,12 +27,10 @@ return [
             'compression_level' => 9,
             'filename_prefix' => '',
             'disks' => [
-                'local',
+                'b2',
             ],
         ],
         'temporary_directory' => storage_path('app/backup-temp'),
-        'password' => env('BACKUP_ARCHIVE_PASSWORD'),
-        'encryption' => 'default',
         'tries' => 1,
         'retry_delay' => 0,
     ],

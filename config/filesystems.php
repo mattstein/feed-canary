@@ -56,6 +56,13 @@ return [
             'throw' => false,
         ],
 
+        'b2' => [
+            'driver'         => 'b2',
+            'accountId'      => env('B2_APPLICATION_KEY_ID'),
+            'applicationKey' => env('B2_APPLICATION_KEY_SECRET'),
+            'bucketName'     => env('B2_BUCKET_NAME'),
+            'bucketId'       => env('B2_BUCKET_ID', ''),
+        ],
     ],
 
     /*

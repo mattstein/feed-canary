@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ba5103c5f8effd667de51924327f35b",
+    "content-hash": "638d399db966e8628cad503eda015dc1",
     "packages": [
         {
             "name": "brick/math",
@@ -619,6 +619,66 @@
                 "source": "https://github.com/fungku/markup-validator-php/tree/master"
             },
             "time": "2015-06-25T22:36:46+00:00"
+        },
+        {
+            "name": "gliterd/backblaze-b2",
+            "version": "1.5.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gliterd/backblaze-b2.git",
+                "reference": "3abcf1ae5b093199c230d4ad82d64fb16ea4fd1a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gliterd/backblaze-b2/zipball/3abcf1ae5b093199c230d4ad82d64fb16ea4fd1a",
+                "reference": "3abcf1ae5b093199c230d4ad82d64fb16ea4fd1a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^6.1|^7.0",
+                "nesbot/carbon": "2.*",
+                "php": "^7.2 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.5",
+                "scrutinizer/ocular": "~1.1",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BackblazeB2\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ramesh Mhetre",
+                    "email": "mhetreramesh@gmail.com",
+                    "homepage": "https://gliterd.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP SDK for working with backblaze B2 cloud storage.",
+            "homepage": "https://github.com/gliterd/b2-sdk-php",
+            "keywords": [
+                "b2",
+                "backblaze",
+                "backup",
+                "cloud",
+                "cloud-storage",
+                "filesystem",
+                "storage"
+            ],
+            "support": {
+                "issues": "https://github.com/gliterd/backblaze-b2/issues",
+                "source": "https://github.com/gliterd/backblaze-b2/tree/1.5.4"
+            },
+            "time": "2022-10-10T02:26:17+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -2273,6 +2333,190 @@
                 }
             ],
             "time": "2023-10-17T14:13:20+00:00"
+        },
+        {
+            "name": "marcandreappel/flysystem-backblaze",
+            "version": "2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/marcandreappel/flysystem-backblaze.git",
+                "reference": "d63f1105fe02f9dee4fa0693b17e2c5024ae7689"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/marcandreappel/flysystem-backblaze/zipball/d63f1105fe02f9dee4fa0693b17e2c5024ae7689",
+                "reference": "d63f1105fe02f9dee4fa0693b17e2c5024ae7689",
+                "shasum": ""
+            },
+            "require": {
+                "gliterd/backblaze-b2": ">=1.5",
+                "league/flysystem": "^3.0",
+                "mikey179/vfsstream": "*",
+                "php": "^8.0|^8.1",
+                "psr/http-message-implementation": "*"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^v7.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MarcAndreAppel\\FlysystemBackblaze\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marc-André Appel",
+                    "email": "marc-andre@appel.fun",
+                    "homepage": "https://github.com/marcandreappel",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Ramesh Mhetre",
+                    "email": "mhetreramesh@gmail.com",
+                    "homepage": "https://about.me/rameshmhetre",
+                    "role": "Creator"
+                }
+            ],
+            "description": "Backblaze adapter for the flysystem filesystem abstraction library",
+            "homepage": "https://github.com/marcandreappel/flysystem-backblaze",
+            "keywords": [
+                "Flysystem",
+                "api",
+                "backblaze",
+                "client",
+                "filesystem"
+            ],
+            "support": {
+                "issues": "https://github.com/marcandreappel/flysystem-backblaze/issues",
+                "source": "https://github.com/marcandreappel/flysystem-backblaze/tree/2.1.1"
+            },
+            "time": "2022-10-03T14:40:33+00:00"
+        },
+        {
+            "name": "marcandreappel/laravel-backblaze-b2",
+            "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/marcandreappel/laravel-backblaze-b2.git",
+                "reference": "784888abc040c30712fa4a0b41387d66c2925e93"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/marcandreappel/laravel-backblaze-b2/zipball/784888abc040c30712fa4a0b41387d66c2925e93",
+                "reference": "784888abc040c30712fa4a0b41387d66c2925e93",
+                "shasum": ""
+            },
+            "require": {
+                "gliterd/backblaze-b2": ">=1.5.0",
+                "marcandreappel/flysystem-backblaze": "^2.1",
+                "php": "^8.0|^8.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^v7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "\\MarcAndreAppel\\BackblazeB2\\BackblazeB2ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MarcAndreAppel\\BackblazeB2\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marc-André Appel",
+                    "email": "marc-andre@appel.fun",
+                    "homepage": "https://github.com/marcandreappel",
+                    "role": "Maintainer"
+                },
+                {
+                    "name": "Ramesh Mhetre",
+                    "email": "mhetreramesh@gmail.com",
+                    "homepage": "https://about.me/rameshmhetre",
+                    "role": "Creator"
+                }
+            ],
+            "description": "Backblaze B2 Cloud Storage for PHP8+ & Laravel 8+",
+            "homepage": "https://github.com/marcandreappel/laravel-backblaze-b2",
+            "keywords": [
+                "Flysystem",
+                "api",
+                "backblaze",
+                "disks",
+                "filesystem",
+                "laravel",
+                "storage"
+            ],
+            "support": {
+                "issues": "https://github.com/marcandreappel/laravel-backblaze-b2/issues",
+                "source": "https://github.com/marcandreappel/laravel-backblaze-b2/tree/2.0.2"
+            },
+            "time": "2022-10-11T08:31:55+00:00"
+        },
+        {
+            "name": "mikey179/vfsstream",
+            "version": "v1.6.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bovigo/vfsStream.git",
+                "reference": "17d16a85e6c26ce1f3e2fa9ceeacdc2855db1e9f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/17d16a85e6c26ce1f3e2fa9ceeacdc2855db1e9f",
+                "reference": "17d16a85e6c26ce1f3e2fa9ceeacdc2855db1e9f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.5|^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.6.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "org\\bovigo\\vfs\\": "src/main/php"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Frank Kleine",
+                    "homepage": "http://frankkleine.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Virtual file system to mock the real file system in unit tests.",
+            "homepage": "http://vfs.bovigo.org/",
+            "support": {
+                "issues": "https://github.com/bovigo/vfsStream/issues",
+                "source": "https://github.com/bovigo/vfsStream/tree/master",
+                "wiki": "https://github.com/bovigo/vfsStream/wiki"
+            },
+            "time": "2022-02-23T02:02:42+00:00"
         },
         {
             "name": "monolog/monolog",

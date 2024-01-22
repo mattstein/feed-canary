@@ -13,6 +13,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "marcandreappel/laravel-backblaze-b2": "^2.0",
         "rcrowe/twigbridge": "^0.14.1",
         "sentry/sentry-laravel": "^4.1",
         "spatie/laravel-backup": "^8.4",
