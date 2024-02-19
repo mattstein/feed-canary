@@ -28,7 +28,7 @@ class PruneChecks implements ShouldQueue
     {
         $cutoff = Carbon::now()->subDays(30);
         Check::query()
-            ->where('last_checked', '<=', $cutoff)
+            ->where('created_at', '<=', $cutoff)
             ->delete();
     }
 }
