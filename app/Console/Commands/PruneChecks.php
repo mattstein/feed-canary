@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Check;
-use App\Models\Feed;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
