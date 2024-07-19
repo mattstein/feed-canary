@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->job(new CheckFeeds())->everyFiveMinutes();
+        $schedule->job(new CheckFeeds())->everyFifteenMinutes();
         $schedule->job(new PruneUnconfirmedFeeds())->daily();
 
         $schedule->command('backup:clean')->daily()->at('17:00');

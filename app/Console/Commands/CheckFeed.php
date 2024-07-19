@@ -24,7 +24,7 @@ class CheckFeed extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $feed = Feed::find($this->argument('id'));
 
