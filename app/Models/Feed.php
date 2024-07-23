@@ -110,6 +110,8 @@ class Feed extends Model
             $hash = md5($body);
             $previousHash = $this->latestCheck()->hash ?? null;
 
+            // TODO: check and honor last-modified header?
+
             if ($hash !== $previousHash) {
                 Log::debug('Content changed, checking validity');
                 $isValid = (new Validator())->feedIsValid($this, $body);
