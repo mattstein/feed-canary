@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -107,10 +106,17 @@ class Feed extends Model
         if ($response->successful()) {
             Log::debug('Check successful');
 
-            $isValid = (new Validator())->feedIsValid(
-                $this,
-                $response->getBody()->getContents()
-            );
+            $body = $response->getBody()->getContents();
+            $hash = md5($body);
+            $previousHash = $this->latestCheck()->hash ?? null;
+
+            if ($hash !== $previousHash) {
+                Log::debug('Content changed, checking validity');
+                $isValid = (new Validator())->feedIsValid($this, $body);
+            } else {
+                Log::debug('Content unchanged, using last check validity');
+                $isValid = $this->latestCheck()->is_valid;
+            }
         }
 
         Log::debug('Creating check record');
@@ -118,6 +124,7 @@ class Feed extends Model
             'feed_id' => $this->id,
             'status' => $response->status(),
             'headers' => json_encode($response->headers()),
+            'hash' => $hash ?? null,
             'is_valid' => $isValid,
         ]);
 
@@ -216,6 +223,17 @@ class Feed extends Model
         $previousStatus = $this->previousCheck()->is_valid ?? null;
 
         return $currentStatus !== $previousStatus;
+    }
+
+    /**
+     * @return bool True if the latest check’s content differs from the previous check.
+     */
+    private function contentHasChanged(): bool
+    {
+        $currentHash = $this->latestCheck()->hash ?? null;
+        $previousHash = $this->previousCheck()->hash ?? null;
+
+        return $currentHash !== $previousHash;
     }
 
     /**

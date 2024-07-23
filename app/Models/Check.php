@@ -10,12 +10,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $feed_id
  * @property string $status
  * @property string $headers
+ * @property string $hash
  * @property bool   $is_valid
  */
 class Check extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['feed_id', 'status', 'headers', 'is_valid'];
+    protected $fillable = ['feed_id', 'status', 'headers', 'hash', 'is_valid'];
 
 }
