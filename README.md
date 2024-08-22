@@ -45,7 +45,7 @@ What I’m using:
 - [Laravel Horizon](https://laravel.com/docs/11.x/horizon) for swanky queue monitoring
 - Spatie’s [Laravel-Backup package](https://github.com/spatie/laravel-backup)
 - [Resend](https://resend.com), [Mailgun](https://www.mailgun.com), *and* [Mailtrap](https://mailtrap.io) for email! (because it’s nice to have [failovers](https://laravel.com/docs/11.x/mail#failover-configuration))
-- [Sentry](http://sentry.io) for a little bit of profiling and mostly catching mistakes and trying to fix them before anybody notices.
+- [Sentry](http://sentry.io) for a little bit of profiling and mostly catching mistakes and trying to fix them before anybody notices
 
 The most important part of the production setup is a stable queue. I’ve used the Redis driver, a cron job for the scheduler [like the Laravel docs recommend](https://laravel.com/docs/11.x/scheduling#running-the-scheduler), and a queue task with a single worker.
 
