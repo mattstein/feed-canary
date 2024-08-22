@@ -1,0 +1,163 @@
+:root {
+  --bg-color: #F6C85A;
+  --text-color: #000;
+  --link-color: #6E12F5;
+  --link-color-hover: #6311D4;
+  --input-text-color: #000;
+  --input-bg-color: #fff;
+  --danger-color: #E93353;
+  --danger-color-hover: #D02C4C;
+  --hr-color: #000;
+}
+
+html {
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  font-weight: normal;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 1.25rem;
+  line-height: 1.8;
+}
+
+a {
+  text-decoration: none;
+  color: var(--link-color);
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.container {
+  max-width: 680px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 2rem;
+  padding-left: 2rem;
+}
+
+nav {
+  margin: 4rem 0;
+}
+
+.site-name {
+  font-weight: bold;
+}
+
+.intro {
+  margin-bottom: 4rem;
+}
+
+label {
+  font-weight: bold;
+}
+
+label small {
+  font-weight: normal;
+}
+
+input {
+  background: var(--input-bg-color);
+  border: none;
+  padding: 1rem;
+  border-radius: 10px;
+  color: var(--input-text-color);
+  font-size: 1rem;
+  display: block;
+  width: 100%;
+  appearance: none;
+  box-sizing: border-box;
+}
+
+button {
+  background: var(--link-color);
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 10px;
+  border: none;
+  display: block;
+  width: 100%;
+  margin-top: 2rem;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--link-color-hover);
+}
+
+button.danger {
+  background: var(--danger-color);
+}
+
+button.danger:hover {
+  background: var(--danger-color-hover);
+}
+
+input {
+  margin-bottom: 1rem;
+}
+
+footer {
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
+footer p {
+  font-size: 75%;
+}
+
+.faq {
+  margin-top: 4rem;
+}
+
+dl {
+  font-size: 75%;
+}
+
+dt,
+dd {
+  margin-left: 0;
+}
+
+dt {
+  font-weight: bold;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.feed-url {
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border-radius: 10px;
+  word-break: break-word;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--hr-color);
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+}
+
+.form-error {
+  margin-bottom: 2rem;
+  color: var(--danger-color);
+  font-weight: bold;
+}
+
+.form-message {
+  margin-bottom: 2rem;
+  font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #191C20;
+    --text-color: #DADADA;
+    --hr-color: #36393E;
+  }
+}

@@ -1,0 +1,15 @@
+{% extends "_layout.twig" %}
+
+{% set pageTitle = "Status"  %}
+
+{% block main %}
+  <div class="container">
+    <h1>
+      {{- 'Status' -}}
+    </h1>
+
+    <p>Last check was {{ lastCheck.updated_at.diffForHumans() }}.</p>
+    <p>{{ w3c ? '✅' : '‼️' }} validator.w3.org/feed {{ w3c ? 'seems fine.' : 'may be down!' }}</p>
+    <p>{{ validatorDotOrg ? '✅' : '‼️' }} feedvalidator.org {{ validatorDotOrg ? 'seems fine.' : 'may be down!' }}</p>
+  </div>
+{% endblock %}

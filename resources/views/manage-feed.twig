@@ -1,0 +1,42 @@
+{% extends "_layout.twig" %}
+
+{% set pageTitle = "Manage Feed"  %}
+
+{% set last = feed.latestCheck() %}
+{% set prev = feed.previousCheck() %}
+{% set robots = 'noindex' %}
+
+{% block main %}
+  <div class="container">
+    <h1 class="feed-url">
+      <a href="{{ feed.url }}">
+        {{- feed.url -}}
+      </a>
+    </h1>
+    
+    {% if not feed.confirmed %}
+      <p>Check your email for a link to activate this monitor, or push the big button to delete it.</p>
+    {% else %}
+      {% if feed.status == 'healthy' %}
+        <p>✅ Looks great!{% if last and last.is_valid %} <code>{{ last.status }}</code> response with valid markup.{% endif %}</p>
+      {% else %}
+        <p>⛔️ Broken feed! Status code was <code>{{ last.status }}</code>{% if not last.is_valid %} and it’s invalid{% endif %}.</p>
+        <p><a href="{{ feed.validatorUrl() }}" target="_blank">Troubleshoot →</a></p>
+      {% endif %}
+
+      <hr/>
+      {% if last %}
+        <p>Last checked {{ last.updated_at.diffForHumans() }}.</p>
+      {% endif %}
+      {% if prev %}
+        <p>Previously {{ prev.is_valid ? 'valid' : 'invalid' }} when we checked {{ prev.updated_at.diffForHumans() }}.</p>
+      {% endif %}
+    {% endif %}
+    <form action="{{ feed.deleteAction() }}" method="post">
+      {{ csrf_field() }}
+      <button name="delete" value="delete" class="danger">
+        {{- 'Delete' -}}
+      </button>
+    </form>
+  </div>
+{% endblock %}
