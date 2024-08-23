@@ -34,7 +34,7 @@ This project includes a [DDEV](https://ddev.com) configuration for local develop
 5. `ddev php artisan key:generate`
 6. `ddev php artisan migrate`
 
-The project should then be available at https://feedcanary.ddev.site/.
+The project should then be available at https://feedcanary.ddev.site/, where you can safely poke at it.
 
 ## Production
 
