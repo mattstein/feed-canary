@@ -8,14 +8,14 @@ This is the Laravel app behind [feedcanary.com](https://feedcanary.com), a free 
 
 ## Overview
 
-Feed Canary is a glorified scheduler and queue, checking response status and attempting to pass changed feed content only off to the [W3C validator](https://validator.w3.org/feed) or [feedvalidator.org](https://www.feedvalidator.org) in order to see if the content is valid.
+Feed Canary checks a URL’s response status and passes changed feed content off to the [W3C validator](https://validator.w3.org/feed) or [feedvalidator.org](https://www.feedvalidator.org) in order to see if the it’s valid.
 
 ## Installation & Setup
 
 This is a pretty straightforward Laravel app that relies heavily on the scheduler and queue.
 
-1. Establish a modern PHP hosting environment with MySQL or MariaDB and ideally redis. (You might be able to use PostgreSQL, I just haven’t tested with it!)
-2. Check out this project, or your fork of it, with Composer.
+1. Establish a modern PHP hosting environment with MySQL or MariaDB and ideally Redis. (PostgreSQL is probably fine, I just haven’t tested with it!)
+2. Check out this project, or your fork of it.
 3. Install Composer dependencies with `composer install`.
 4. Install npm dependencies with `npm install`. (Run `npm run build` to have Vite bundle fresh CSS.)
 5. Set up a cron job to run the scheduler.
@@ -47,17 +47,7 @@ What I’m using:
 - [Resend](https://resend.com), [Mailgun](https://www.mailgun.com), *and* [Mailtrap](https://mailtrap.io) for email! (because it’s nice to have [failovers](https://laravel.com/docs/11.x/mail#failover-configuration))
 - [Sentry](http://sentry.io) for a little bit of profiling and mostly catching mistakes and trying to fix them before anybody notices
 
-The most important part of the production setup is a stable queue. I’ve used the Redis driver, a cron job for the scheduler [like the Laravel docs recommend](https://laravel.com/docs/11.x/scheduling#running-the-scheduler), and a queue task with a single worker.
-
-Be sure to restart the queue after pushing any changes relevant to the scheduler:
-
-```
-php8.3 artisan queue:restart
-```
-
-I added [Laravel Horizon](https://laravel.com/docs/11.x/horizon) to the project to keep closer watch over the queue and its performance. (Okay also curiosity.) You’ll need to add your IP address to the allow list in order to visit `/horizon` and have a look for yourself.
-
-The supervisor config I’m using:
+The most important part of the production setup is a stable queue. I’ve used the Redis driver, a cron job for the scheduler [like the Laravel docs recommend](https://laravel.com/docs/11.x/scheduling#running-the-scheduler), and a single queue worker:
 
 ```
 command=/usr/bin/php /path/to/artisan queue:work redis --timeout=60 --sleep=10 --tries=3 --queue="default" --memory=128 --backoff=5 --env="production"
@@ -68,6 +58,14 @@ user=ploi
 redirect_stderr=true
 numprocs=1
 ```
+
+Be sure to restart the queue after pushing any changes relevant to the scheduler:
+
+```
+php8.3 artisan queue:restart
+```
+
+I added [Laravel Horizon](https://laravel.com/docs/11.x/horizon) to the project to keep closer watch over the queue and its performance. (Okay also curiosity.) You’ll need to add your IP address to the allow list in order to visit `/horizon` and have a look for yourself.
 
 My Ploi deployment script looks like this:
 
@@ -86,7 +84,7 @@ git pull origin main
 echo "🚀 Application deployed!"
 ```
 
-Lastly, I added the [spatie/laravel-backup](https://github.com/spatie/laravel-backup) package to easily take database-only offsite backups.
+Lastly, I added the [spatie/laravel-backup](https://github.com/spatie/laravel-backup) package to easily take database-only offsite backups. It’s configured to use Backblaze B2, but flexible enough to use however you likely prefer. (Or not use at all, you daredevil!)
 
 ### System Resources
 
@@ -104,6 +102,6 @@ I built in a few commands for checking on things and tidying up:
 
 I welcome any thoughtful PRs that might improve the efficiency, design, or user experience of this little project! I’m sure there’s plenty of room for improvement.
 
-My intent with this repository is mostly to share the source code behind the site, not so much to formally release and maintain an app for broader use. As such, I’ll try and be helpful with issues but you may need to embrace the adventure of running your own instance in your favorite environment.
+My intent with this repository is to share the source code behind the site, not so much to formally release and maintain an app for broader use. As such, I’ll try and be helpful with issues but you may need to embrace the adventure of running your own instance in your favorite environment.
 
 If you’ve found a bug, done some refactoring, or added a feature you’d like to share, please open an [issue](https://github.com/mattstein/feed-canary/issues) or [PR](https://github.com/mattstein/feed-canary/pulls) on this repository and I’ll respond to it.
