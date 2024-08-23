@@ -36,6 +36,8 @@ This project includes a [DDEV](https://ddev.com) configuration for local develop
 
 The project should then be available at https://feedcanary.ddev.site/, where you can safely poke at it.
 
+Email will go straight to [Mailpit](https://mailpit.axllent.org), which you can launch in a browser with `ddev mailpit`.
+
 ## Production
 
 What I’m using:
