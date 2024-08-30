@@ -1,0 +1,66 @@
+services:
+  app:
+    environment:
+      AUTORUN_ENABLED: true
+      PHP_FPM_POOL_NAME: "feed-canary_php"
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: laravel
+      DB_USERNAME: laravel
+      DB_PASSWORD: laravel
+      REDIS_HOST: redis
+      REDIS_PASSWORD: null
+      REDIS_PORT: 6379
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - './storage:/var/www/html/storage'
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+      MYSQL_RANDOM_ROOT_PASSWORD: true
+    ports:
+      - '3306:3306'
+    volumes:
+      - db:/var/lib/mysql
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PHP_FPM_POOL_NAME: "feed-canary_scheduler"
+    command: [ "php", "/var/www/html/artisan", "schedule:work" ]
+    volumes:
+      - ./storage:/var/www/html/storage
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PHP_FPM_POOL_NAME: "feed-canary_que"
+    command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
+    volumes:
+      - ./storage:/var/www/html/storage
+  horizon:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PHP_FPM_POOL_NAME: "feed-canary_horizon"
+    command: [ "php", "/var/www/html/artisan", "horizon" ]
+    volumes:
+      - ./storage:/var/www/html/storage
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+volumes:
+  db:
+    driver: local
