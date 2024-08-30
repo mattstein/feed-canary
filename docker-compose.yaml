@@ -3,15 +3,7 @@ services:
     environment:
       AUTORUN_ENABLED: true
       PHP_FPM_POOL_NAME: "feed-canary_php"
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_DATABASE: laravel
-      DB_USERNAME: laravel
-      DB_PASSWORD: laravel
-      REDIS_HOST: redis
-      REDIS_PASSWORD: null
-      REDIS_PORT: 6379
+    env_file: .env.coolify
     build:
       context: .
       dockerfile: Dockerfile
@@ -30,6 +22,7 @@ services:
     volumes:
       - db:/var/lib/mysql
   scheduler:
+    env_file: .env.coolify
     build:
       context: .
       dockerfile: Dockerfile
@@ -39,6 +32,7 @@ services:
     volumes:
       - ./storage:/var/www/html/storage
   queue:
+    env_file: .env.coolify
     build:
       context: .
       dockerfile: Dockerfile
@@ -48,6 +42,7 @@ services:
     volumes:
       - ./storage:/var/www/html/storage
   horizon:
+    env_file: .env.coolify
     build:
       context: .
       dockerfile: Dockerfile
