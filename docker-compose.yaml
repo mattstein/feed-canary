@@ -3,7 +3,6 @@ services:
     environment:
       AUTORUN_ENABLED: true
       PHP_FPM_POOL_NAME: "feed-canary_php"
-    env_file: .env.coolify
     build:
       context: .
       dockerfile: Dockerfile
@@ -25,7 +24,6 @@ services:
     volumes:
       - db:/var/lib/mysql
   scheduler:
-    env_file: .env.coolify
     build:
       context: .
       dockerfile: Dockerfile
@@ -38,7 +36,6 @@ services:
       - db
       - redis
   queue:
-    env_file: .env.coolify
     build:
       context: .
       dockerfile: Dockerfile
@@ -51,7 +48,6 @@ services:
       - db
       - redis
   horizon:
-    env_file: .env.coolify
     build:
       context: .
       dockerfile: Dockerfile
