@@ -33,7 +33,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
                 return false;
             }
 
-            return in_array(request()->ip(), $allowed_addresses);
+            return in_array(request()->getClientIp(), $allowed_addresses);
         });
     }
 }
