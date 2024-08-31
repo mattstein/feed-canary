@@ -19,7 +19,7 @@
       </div>
     {% endif %}
 
-    <form action="/add" method="post">
+    <form action="{{ url('/add') }}" method="post">
       {{ csrf_field() }}
 
       <label for="url">Feed URL <small>for a valid RSS feed</small></label>
