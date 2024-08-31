@@ -28,7 +28,10 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewHorizon', static function ($user = null) {
-            $allowed_addresses = json_decode(env('REMOTE_ADDRESSES'));
+
+            if ( ! $allowed_addresses = json_decode(env('REMOTE_ADDRESSES'))) {
+                return false;
+            }
 
             return in_array(request()->ip(), $allowed_addresses);
         });
