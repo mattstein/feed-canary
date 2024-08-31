@@ -25,8 +25,6 @@ services:
       MYSQL_USER: laravel
       MYSQL_PASSWORD: laravel
       MYSQL_RANDOM_ROOT_PASSWORD: true
-    ports:
-      - '3306:3306'
     volumes:
       - db:/var/lib/mysql
     healthcheck:
@@ -89,8 +87,6 @@ services:
   redis:
     image: redis:latest
     restart: always
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
 volumes:
