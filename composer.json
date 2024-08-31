@@ -19,7 +19,6 @@
         "rcrowe/twigbridge": "^0.14.1",
         "resend/resend-laravel": "^0.14.0",
         "sentry/sentry-laravel": "^4.1",
-        "spatie/laravel-backup": "^8.4",
         "symfony/http-client": "^7.0",
         "symfony/mailgun-mailer": "^7.0",
         "twig/twig": "^3.8"
