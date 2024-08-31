@@ -56,7 +56,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      PHP_FPM_POOL_NAME: "feed-canary_que"
+      PHP_FPM_POOL_NAME: "feed-canary_queue"
     command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
     volumes:
       - ./storage:/var/www/html/storage
