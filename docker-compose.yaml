@@ -8,29 +8,12 @@ services:
       dockerfile: Dockerfile
     volumes:
       - './storage:/var/www/html/storage'
-    depends_on:
-      - db
-      - redis
     healthcheck:
       test: curl --fail http://localhost:8080/healthcheck || exit 1
       interval: 10s
       retries: 5
       start_period: 10s
       timeout: 10s
-  db:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: laravel
-      MYSQL_RANDOM_ROOT_PASSWORD: true
-    volumes:
-      - db:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
   scheduler:
     build:
       context: .
@@ -40,9 +23,6 @@ services:
     command: [ "php", "/var/www/html/artisan", "schedule:work" ]
     volumes:
       - ./storage:/var/www/html/storage
-    depends_on:
-      - db
-      - redis
     healthcheck:
       test: curl --fail http://localhost:8080/healthcheck || exit 1
       interval: 10s
@@ -58,9 +38,6 @@ services:
     command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
     volumes:
       - ./storage:/var/www/html/storage
-    depends_on:
-      - db
-      - redis
     healthcheck:
       test: curl --fail http://localhost:8080/healthcheck || exit 1
       interval: 10s
@@ -76,18 +53,9 @@ services:
     command: [ "php", "/var/www/html/artisan", "horizon" ]
     volumes:
       - ./storage:/var/www/html/storage
-    depends_on:
-      - redis
     healthcheck:
       test: curl --fail http://localhost:8080/healthcheck || exit 1
       interval: 10s
       retries: 5
       start_period: 10s
       timeout: 10s
-  redis:
-    image: redis:latest
-    restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-volumes:
-  db:
