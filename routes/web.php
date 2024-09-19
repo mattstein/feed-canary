@@ -34,7 +34,7 @@ Route::get('/status', function () {
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             $validatorDotOrgUp = false;
         }
-        
+
         Cache::put('validator.org-status', $validatorDotOrgUp, 30);
     }
 
