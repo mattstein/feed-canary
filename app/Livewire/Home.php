@@ -30,7 +30,7 @@ class Home extends Component
 
         try {
             $response = Http::get($this->url);
-        } catch (ConnectionException $connectionException) {
+        } catch (\Exception) {
             $this->feedErrors->push('Couldn’t connect to that URL.');
 
             return null;
