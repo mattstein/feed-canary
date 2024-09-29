@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Mail\ConfirmFeed;
 use App\Models\Feed;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
