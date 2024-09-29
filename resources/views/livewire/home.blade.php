@@ -10,18 +10,20 @@
     <p>Feed Canary watches your RSS feed and emails you if it’s missing or invalid.</p>
   </div>
 
-  @if (! empty($errors))
+  @if (! empty($feedErrors))
     <div class="form-error">
-      {{ $errors->first() }}
+      {{ $feedErrors->first() }}
     </div>
   @endif
 
   <form method="post" wire:submit="create">
     <label for="url">Feed URL <small>for a valid RSS feed</small></label>
     <input type="url" id="url" wire:model="url" required>
+    <div class="form-error">@error('url') {{ $message }} @enderror</div>
 
     <label for="email">Email Address <small>to confirm and activate (not SPAM)</small></label>
     <input type="email" id="email" wire:model="email" required>
+    <div class="form-error">@error('email') {{ $message }} @enderror</div>
 
     <button wire:loading.attr="disabled">
       <span wire:loading>

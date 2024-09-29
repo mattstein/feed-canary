@@ -25,7 +25,15 @@ class ManageFeed extends Component
             return;
         }
 
-        $this->canCheck = $this->feed->latestCheck()->updated_at->diffInSeconds(now()) > 30;
+        if (! $this->feed->latestCheck()) {
+            $this->canCheck = false;
+
+            return;
+        }
+
+        $this->canCheck = $this->feed->latestCheck()
+            ->updated_at
+            ->diffInSeconds(now()) > 30;
     }
 
     public function check(): void

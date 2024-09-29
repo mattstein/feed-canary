@@ -90,14 +90,6 @@ class Feed extends Model
     }
 
     /**
-     * @return string URL for deleting the monitor
-     */
-    public function deleteAction(): string
-    {
-        return url('/feed/'.$this->id.'/delete');
-    }
-
-    /**
      * Attempts to download and validate the feed, sending a notification if its status changed.
      *
      * @return bool True if the feed seems healthy and valid

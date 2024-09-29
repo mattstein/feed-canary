@@ -1,15 +1,19 @@
 <?php
 
+use App\Livewire\Home;
+use App\Livewire\ManageFeed;
+use App\Livewire\Status;
 use App\Mail\ConfirmFeed;
 use App\Models\Feed;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Livewire\Livewire;
 
 /**
  * Do the very basics seem to be working?
  */
 it('has landing page', function () {
-    $this->get('/')
+    Livewire::test(Home::class)
         ->assertOk();
 });
 
@@ -20,7 +24,9 @@ it('has status page', function () {
         'https://feedvalidator.org' => Http::response(),
     ]);
 
-    $this->get('/status')
+    Livewire::test(Status::class)
+        ->assertSeeText('Status')
+        ->assertSeeText('Last check was')
         ->assertOk();
 });
 
@@ -47,19 +53,23 @@ it('rejects invalid feed URL', function () {
         ),
     ]);
 
-    $this->post('/add', [
-        'url' => 'https://google.com/',
-        'email' => 'hi@example.foo',
-    ])
-        ->assertRedirect('/');
+    Livewire::test(Home::class)
+        ->set('url', 'https://google.com/')
+        ->set('email', 'hi@example.foo')
+        ->runAction('create')
+        ->assertOk()
+        ->assertNoRedirect()
+        ->assertSeeText('That URL doesn’t return a JSON or RSS feed.');
 });
 
 it('rejects invalid email address', function () {
-    $this->post('/add', [
-        'url' => 'https://www.theverge.com/rss/frontpage',
-        'email' => 'nope',
-    ])
-        ->assertRedirect('/');
+    Livewire::test(Home::class)
+        ->set('url', 'https://www.theverge.com/rss/frontpage')
+        ->set('email', 'nope')
+        ->call('create')
+        ->assertOk()
+        ->assertNoRedirect()
+        ->assertSeeText('The email field must be a valid email address.');
 });
 
 it('accepts valid input', function () {
@@ -74,10 +84,10 @@ it('accepts valid input', function () {
         ),
     ]);
 
-    $this->post('/add', [
-        'url' => 'https://www.theverge.com/rss/frontpage',
-        'email' => 'test@example.foo',
-    ])
+    Livewire::test(Home::class)
+        ->set('url', 'https://www.theverge.com/rss/frontpage')
+        ->set('email', 'test@example.foo')
+        ->call('create')
         ->assertRedirectContains('/feed/');
 
     Mail::assertSent(ConfirmFeed::class);
@@ -92,8 +102,13 @@ it('deletes feed on request', function () {
     $feed = Feed::factory()->create();
     $feedId = $feed->id;
 
-    $this->post($feed->deleteAction())
+    Livewire::test(ManageFeed::class, ['id' => $feedId])
+        ->call('delete')
         ->assertRedirect('/');
 
-    $this->assertNull(Feed::find($feedId));
+    Livewire::test(Home::class)
+        ->assertSee('Your feed monitor has been deleted.');
+
+    expect(Feed::find($feedId))
+        ->toBeNull();
 });

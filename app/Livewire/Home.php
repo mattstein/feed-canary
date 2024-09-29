@@ -17,7 +17,7 @@ class Home extends Component
 
     public ?string $email = null;
 
-    public ?Collection $errors = null;
+    public ?Collection $feedErrors = null;
 
     public function create()
     {
@@ -26,12 +26,12 @@ class Home extends Component
             'email' => 'required|email',
         ]);
 
-        $this->errors = collect([]);
+        $this->feedErrors = collect([]);
 
         try {
             $response = Http::get($this->url);
         } catch (ConnectionException $connectionException) {
-            $this->errors->push('Couldn’t connect to that URL.');
+            $this->feedErrors->push('Couldn’t connect to that URL.');
 
             return null;
         }
@@ -39,7 +39,7 @@ class Home extends Component
         $contentType = $response->header('content-type');
 
         if (! Feed::isValidResponseType($contentType)) {
-            $this->errors->push('That URL doesn’t return a JSON or RSS feed.');
+            $this->feedErrors->push('That URL doesn’t return a JSON or RSS feed.');
 
             return null;
         }
