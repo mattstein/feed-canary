@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1c3ef55e406260a34be05112edb1bde1",
+    "content-hash": "dac752cd9f6dc66555fabbed048e7abf",
     "packages": [
         {
             "name": "brick/math",
@@ -4596,78 +4596,6 @@
             "time": "2024-04-27T21:32:50+00:00"
         },
         {
-            "name": "rcrowe/twigbridge",
-            "version": "v0.14.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rcrowe/TwigBridge.git",
-                "reference": "b8a5591ad79e53adab08841ec06ca11e814b51b4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rcrowe/TwigBridge/zipball/b8a5591ad79e53adab08841ec06ca11e814b51b4",
-                "reference": "b8a5591ad79e53adab08841ec06ca11e814b51b4",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "^9|^10|^11",
-                "illuminate/view": "^9|^10|^11",
-                "php": "^8.1",
-                "twig/twig": "~3.9"
-            },
-            "require-dev": {
-                "ext-json": "*",
-                "laravel/framework": "^9|^10|^11",
-                "mockery/mockery": "^1.3.1",
-                "phpunit/phpunit": "^8.5.8 || ^9.3.7",
-                "squizlabs/php_codesniffer": "^3.6"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.14-dev"
-                },
-                "laravel": {
-                    "providers": [
-                        "TwigBridge\\ServiceProvider"
-                    ],
-                    "aliases": {
-                        "Twig": "TwigBridge\\Facade\\Twig"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "TwigBridge\\": "src",
-                    "TwigBridge\\Tests\\": "tests"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Rob Crowe",
-                    "email": "hello@vivalacrowe.com"
-                },
-                {
-                    "name": "Barry vd. Heuvel",
-                    "email": "barryvdh@gmail.com"
-                }
-            ],
-            "description": "Adds the power of Twig to Laravel",
-            "keywords": [
-                "laravel",
-                "twig"
-            ],
-            "support": {
-                "issues": "https://github.com/rcrowe/TwigBridge/issues",
-                "source": "https://github.com/rcrowe/TwigBridge/tree/v0.14.3"
-            },
-            "time": "2024-04-24T08:52:10+00:00"
-        },
-        {
             "name": "resend/resend-laravel",
             "version": "v0.14.0",
             "source": {
@@ -6710,82 +6638,6 @@
             "time": "2024-05-31T15:07:36+00:00"
         },
         {
-            "name": "symfony/polyfill-php81",
-            "version": "v1.30.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/polyfill-php81.git",
-                "reference": "3fb075789fb91f9ad9af537c4012d523085bd5af"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php81/zipball/3fb075789fb91f9ad9af537c4012d523085bd5af",
-                "reference": "3fb075789fb91f9ad9af537c4012d523085bd5af",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.1"
-            },
-            "type": "library",
-            "extra": {
-                "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "bootstrap.php"
-                ],
-                "psr-4": {
-                    "Symfony\\Polyfill\\Php81\\": ""
-                },
-                "classmap": [
-                    "Resources/stubs"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony polyfill backporting some PHP 8.1+ features to lower PHP versions",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "compatibility",
-                "polyfill",
-                "portable",
-                "shim"
-            ],
-            "support": {
-                "source": "https://github.com/symfony/polyfill-php81/tree/v1.30.0"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-06-19T12:30:46+00:00"
-        },
-        {
             "name": "symfony/polyfill-php83",
             "version": "v1.30.0",
             "source": {
@@ -7717,86 +7569,6 @@
                 "source": "https://github.com/tijsverkoyen/CssToInlineStyles/tree/v2.2.7"
             },
             "time": "2023-12-08T13:03:43+00:00"
-        },
-        {
-            "name": "twig/twig",
-            "version": "v3.11.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/twigphp/Twig.git",
-                "reference": "e80fb8ebba85c7341a97a9ebf825d7fd4b77708d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/e80fb8ebba85c7341a97a9ebf825d7fd4b77708d",
-                "reference": "e80fb8ebba85c7341a97a9ebf825d7fd4b77708d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2.5",
-                "symfony/deprecation-contracts": "^2.5|^3",
-                "symfony/polyfill-ctype": "^1.8",
-                "symfony/polyfill-mbstring": "^1.3",
-                "symfony/polyfill-php80": "^1.22",
-                "symfony/polyfill-php81": "^1.29"
-            },
-            "require-dev": {
-                "psr/container": "^1.0|^2.0",
-                "symfony/phpunit-bridge": "^5.4.9|^6.4|^7.0"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/Resources/core.php",
-                    "src/Resources/debug.php",
-                    "src/Resources/escaper.php",
-                    "src/Resources/string_loader.php"
-                ],
-                "psr-4": {
-                    "Twig\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
-                },
-                {
-                    "name": "Twig Team",
-                    "role": "Contributors"
-                },
-                {
-                    "name": "Armin Ronacher",
-                    "email": "armin.ronacher@active-4.com",
-                    "role": "Project Founder"
-                }
-            ],
-            "description": "Twig, the flexible, fast, and secure template language for PHP",
-            "homepage": "https://twig.symfony.com",
-            "keywords": [
-                "templating"
-            ],
-            "support": {
-                "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.11.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/twig/twig",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-08-08T16:15:16+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

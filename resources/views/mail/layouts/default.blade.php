@@ -4,8 +4,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="x-apple-disable-message-reformatting" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-{#  <meta name="color-scheme" content="light dark" />#}
-{#  <meta name="supported-color-schemes" content="light dark" />#}
+{{--  <meta name="color-scheme" content="light dark" />--}}
+{{--  <meta name="supported-color-schemes" content="light dark" />--}}
   <title></title>
   <style type="text/css" rel="stylesheet" media="all">
     /* Base ------------------------------ */
@@ -186,7 +186,7 @@
       }
     }
 
-    {#
+    {{--
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #191C20 !important;
@@ -198,7 +198,7 @@
       color-scheme: light dark;
       supported-color-schemes: light dark;
     }
-    #}
+    --}}
   </style>
   <!--[if mso]>
   <style type="text/css">
@@ -216,7 +216,7 @@
         <tr>
           <td class="email-masthead">
             <a href="{{ url('/') }}" class="f-fallback email-masthead_name">
-              {{- config('app.name') -}}
+              {{ config('app.name') }}
             </a>
           </td>
         </tr>
@@ -226,8 +226,8 @@
               <tr>
                 <td class="content-cell">
                   <div class="f-fallback">
-                    {% block content %}
-                    {% endblock content %}
+                    @section('content')
+                    @show
                   </div>
                 </td>
               </tr>

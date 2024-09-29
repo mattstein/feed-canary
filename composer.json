@@ -17,12 +17,10 @@
         "livewire/livewire": "^3.5",
         "marcandreappel/laravel-backblaze-b2": "^2.0",
         "railsware/mailtrap-php": "^1.9",
-        "rcrowe/twigbridge": "^0.14.1",
         "resend/resend-laravel": "^0.14.0",
         "sentry/sentry-laravel": "^4.1",
         "symfony/http-client": "^7.0",
-        "symfony/mailgun-mailer": "^7.0",
-        "twig/twig": "^3.8"
+        "symfony/mailgun-mailer": "^7.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
