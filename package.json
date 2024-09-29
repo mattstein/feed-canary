@@ -8,5 +8,8 @@
     "devDependencies": {
         "laravel-vite-plugin": "^1.0.0",
         "vite": "^5.0.0"
+    },
+    "dependencies": {
+        "@chrisburnell/relative-time": "^1.0.6"
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ConfirmFeed;
 use App\Models\Feed;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -20,7 +21,18 @@ class FeedController extends Controller
         ]);
 
         $feedUrl = $request->input('url');
-        $response = Http::get($feedUrl);
+
+        try {
+            $response = Http::get($feedUrl);
+        } catch (ConnectionException $connectionException) {
+            $request->flash();
+
+            return Redirect::back()
+                ->withErrors([
+                    'url' => 'Couldn’t connect to that URL.',
+                ]);
+        }
+
         $contentType = $response->header('content-type');
 
         if (! Feed::isValidResponseType($contentType)) {
@@ -46,15 +58,6 @@ class FeedController extends Controller
         return redirect($feed->manageUrl());
     }
 
-    public function view(string $id)
-    {
-        if (! $feed = Feed::query()->find($id)) {
-            abort(404);
-        }
-
-        return view('manage-feed', ['feed' => $feed]);
-    }
-
     public function confirm(string $id, string $code)
     {
         $feed = Feed::where([
@@ -72,17 +75,5 @@ class FeedController extends Controller
         ]);
 
         return redirect($feed->manageUrl());
-    }
-
-    public function delete(string $id)
-    {
-        if (! $feed = Feed::find($id)) {
-            abort(404);
-        }
-
-        $feed->delete();
-
-        return redirect('/')
-            ->with('message', 'Your feed monitor has been deleted.');
     }
 }

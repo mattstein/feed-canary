@@ -96,6 +96,13 @@ button.danger:hover {
   background: var(--danger-color-hover);
 }
 
+button .waiting-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-top: -0.5rem;
+  margin-bottom: -0.5rem;
+}
+
 input {
   margin-bottom: 1rem;
 }
@@ -129,12 +136,42 @@ dt {
 }
 
 .feed-url {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 1rem;
   padding: 0.75rem 1rem;
   background: white;
   border-radius: 10px;
   word-break: break-word;
+  margin: 0;
 }
+
+.feed-url button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--link-color)
+}
+
+.feed-url button:hover {
+  color: var(--link-color-hover)
+}
+
+.feed-url button:disabled {
+  opacity: 0.25;
+}
+
+.feed-url button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 
 hr {
   border: none;
@@ -152,6 +189,10 @@ hr {
 .form-message {
   margin-bottom: 2rem;
   font-weight: bold;
+}
+
+.sr-only {
+  display: none;
 }
 
 @media (prefers-color-scheme: dark) {

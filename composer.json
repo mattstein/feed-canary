@@ -14,6 +14,7 @@
         "laravel/framework": "^11.0",
         "laravel/horizon": "^5.26",
         "laravel/tinker": "^2.8",
+        "livewire/livewire": "^3.5",
         "marcandreappel/laravel-backblaze-b2": "^2.0",
         "railsware/mailtrap-php": "^1.9",
         "rcrowe/twigbridge": "^0.14.1",
