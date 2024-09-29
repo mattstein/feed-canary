@@ -1,6 +1,14 @@
 <div class="container">
   <h1>Updates</h1>
 
+  <h2 id="2024-09-29">2024-09-29</h2>
+  <ul>
+    <li>Overhauled front end to use Livewire and Blade.</li>
+    <li>Added the ability to manually re-check a confirmed feed.</li>
+    <li>Made feed management pages feel more alive.</li>
+    <li>Fixed 500 error when trying to add a URL Feed Canary can’t connect to.</li>
+  </ul>
+
   <h2 id="2024-08-22">2024-08-22</h2>
   <ul>
     <li>Refactored quite a bit of code and added tests.</li>
