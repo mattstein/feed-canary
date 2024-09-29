@@ -3,8 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\Feed;
-use Livewire\Component;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 class ManageFeed extends Component
 {
@@ -21,6 +21,7 @@ class ManageFeed extends Component
     {
         if (! $this->feed->confirmed) {
             $this->canCheck = false;
+
             return;
         }
 
@@ -49,6 +50,7 @@ class ManageFeed extends Component
     public function render()
     {
         $this->refreshCheckAvailability();
+
         return view('livewire.manage-feed');
     }
 }

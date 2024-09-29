@@ -4,14 +4,15 @@ namespace App\Livewire;
 
 use App\Models\Check;
 use Illuminate\Http\Client\ConnectionException;
-use Livewire\Component;
-use Livewire\Attributes\Title;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 class Status extends Component
 {
     public ?string $w3cStatus = null;
+
     public ?string $validatorDotOrgStatus = null;
 
     public function updateW3cStatus(): void
@@ -86,7 +87,7 @@ class Status extends Component
     public function render()
     {
         return view('livewire.status', [
-            'lastCheck' => Check::query()->latest()->first()
+            'lastCheck' => Check::query()->latest()->first(),
         ]);
     }
 }

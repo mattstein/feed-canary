@@ -14,7 +14,9 @@ use Livewire\Component;
 class Home extends Component
 {
     public ?string $url = null;
+
     public ?string $email = null;
+
     public ?Collection $errors = null;
 
     public function create()
@@ -30,6 +32,7 @@ class Home extends Component
             $response = Http::get($this->url);
         } catch (ConnectionException $connectionException) {
             $this->errors->push('Couldn’t connect to that URL.');
+
             return null;
         }
 
@@ -37,6 +40,7 @@ class Home extends Component
 
         if (! Feed::isValidResponseType($contentType)) {
             $this->errors->push('That URL doesn’t return a JSON or RSS feed.');
+
             return null;
         }
 
