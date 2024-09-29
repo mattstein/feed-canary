@@ -42,55 +42,19 @@ Email will go straight to [Mailpit](https://mailpit.axllent.org), which you can 
 
 What I’m using:
 
-- [Ploi](https://ploi.io) for provisioning
+- [Coolify](https://coolify.io) for hosting
 - A 2-core, 2GB memory VPS for running the app
 - [Laravel Horizon](https://laravel.com/docs/11.x/horizon) for swanky queue monitoring
-- Spatie’s [Laravel-Backup package](https://github.com/spatie/laravel-backup)
 - [Resend](https://resend.com), [Mailgun](https://www.mailgun.com), *and* [Mailtrap](https://mailtrap.io) for email! (because it’s nice to have [failovers](https://laravel.com/docs/11.x/mail#failover-configuration))
-- [Sentry](http://sentry.io) for a little bit of profiling and mostly catching mistakes and trying to fix them before anybody notices
+- [Sentry](http://sentry.io) for profiling and mostly catching mistakes and trying to fix them before anybody notices
 
-The most important part of the production setup is a stable queue. I’ve used the Redis driver, a cron job for the scheduler [like the Laravel docs recommend](https://laravel.com/docs/11.x/scheduling#running-the-scheduler), and a single queue worker:
-
-```
-command=/usr/bin/php /path/to/artisan queue:work redis --timeout=60 --sleep=10 --tries=3 --queue="default" --memory=128 --backoff=5 --env="production"
-process_name=%(program_name)s_%(process_num)02d
-autostart=true
-autorestart=true
-user=ploi
-redirect_stderr=true
-numprocs=1
-```
-
-Be sure to restart the queue after pushing any changes relevant to the scheduler:
-
-```
-php8.3 artisan queue:restart
-```
+It’s important to set this up with a stable queue! You can check out the project’s [Dockerfile](https://github.com/mattstein/feed-canary/blob/main/Dockerfile) that’s used as the basis for each app container in the [docker-compose.yaml](https://github.com/mattstein/feed-canary/blob/main/docker-compose.yaml) file I use with Coolify. I manually created PostgreSQL and Redis services separately. (I [mentioned this](https://mattstein.com/thoughts/diving-into-coolify/#feedcanary) in a blog post about transitioning from Ploi to Coolify.)
 
 I added [Laravel Horizon](https://laravel.com/docs/11.x/horizon) to the project to keep closer watch over the queue and its performance. (Okay also curiosity.) You’ll need to add your IP address to the allow list in order to visit `/horizon` and have a look for yourself.
 
-My Ploi deployment script looks like this:
-
-```
-cd /path/to/project/root
-git pull origin main
-{SITE_COMPOSER} install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-{RELOAD_PHP_FPM}
-
-{SITE_PHP} artisan route:cache
-{SITE_PHP} artisan view:clear
-{SITE_PHP} artisan optimize:clear
-{SITE_PHP} artisan migrate --force
-{SITE_PHP} artisan horizon:terminate
-
-echo "🚀 Application deployed!"
-```
-
-Lastly, I added the [spatie/laravel-backup](https://github.com/spatie/laravel-backup) package to easily take database-only offsite backups. It’s configured to use Backblaze B2, but flexible enough to use however you likely prefer. (Or not use at all, you daredevil!)
-
 ### System Resources
 
-The VPS I’m currently running is dedicated to this app, and it does alright despite its frighteningly slow networking. It chugs along just fine using about half its available resources checking a hundred or so feeds. YMMV.
+The VPS I’m currently running is dedicated to this app. It chugs along fine using about half its available resources checking a hundred or so feeds. YMMV.
 
 ### Maintenance
 
