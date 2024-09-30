@@ -7,6 +7,7 @@
     <li>Added the ability to manually re-check a confirmed feed.</li>
     <li>Made feed management pages feel more alive.</li>
     <li>Fixed 500 error when trying to add a URL Feed Canary can’t connect to.</li>
+    <li>Feed delete button now includes a confirm step.</li>
   </ul>
 
   <h2 id="2024-08-22">2024-08-22</h2>
