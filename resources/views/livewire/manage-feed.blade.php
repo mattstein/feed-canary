@@ -1,4 +1,3 @@
-{{--{% set robots = 'noindex' %}--}}
 @section('robots', 'noindex')
 <div class="container">
   <h1 class="feed-url" wire:poll.10s="refreshCheckAvailability">
@@ -30,9 +29,7 @@
       </p>
     @elseif ($feed->confirmed && $feed->status === 'failing')
       <div wire:loading.remove wire:target="check">
-        <p>⛔️ Broken feed! Status code was <code>{{ $feed->latestCheck()->status }}</code>
-          @if (! $feed->latestCheck()->is_valid) and it’s invalid @endif.
-        </p>
+        <p>⛔️ Broken feed! Status code was <code>{{ $feed->latestCheck()->status }}</code>{{ $feed->latestCheck()->is_valid ? '.' : ' and it’s invalid.' }}</p>
         <p><a href="{{ $feed->validatorUrl() }}" target="_blank">Troubleshoot →</a></p>
       </div>
     @endif
