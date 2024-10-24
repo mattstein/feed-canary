@@ -30,6 +30,14 @@
       <dd>No.</dd>
     </dl>
     <dl>
+      <dt>Can I look at the source code to make sure you’re not doing anything gross?</dt>
+      <dd><a href="https://github.com/mattstein/feed-canary">Right this way</a>!</dd>
+    </dl>
+    <dl>
+      <dt>Is there an updates page that ironically does not have an RSS feed?</dt>
+      <dd><a href="/updates">Yes</a>.</dd>
+    </dl>
+    <dl>
       <dt>What if I have a problem or another question?</dt>
       <dd><a href="mailto:matts@omg.lol">Send me an email</a>, please! I’d love to hear from you.</dd>
     </dl>
