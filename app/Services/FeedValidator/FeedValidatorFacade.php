@@ -6,8 +6,6 @@ use App\Models\Feed;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static feedIsValid(Feed $feed, string $body)
- *
  * @mixin FeedValidator
  */
 class FeedValidatorFacade extends Facade
