@@ -2,7 +2,6 @@
 
 namespace App\Services\FeedValidator;
 
-use App\Models\Feed;
 use Illuminate\Support\Facades\Facade;
 
 /**
