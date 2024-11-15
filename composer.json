@@ -23,6 +23,7 @@
         "symfony/mailgun-mailer": "^7.0"
     },
     "require-dev": {
+        "enlightn/enlightn": "^2.10",
         "fakerphp/faker": "^1.9.1",
         "larastan/larastan": "^2.9",
         "laravel/pint": "^1.0",
