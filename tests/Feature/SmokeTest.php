@@ -102,7 +102,7 @@ it('deletes feed on request', function () {
     $feed = Feed::factory()->create();
     $feedId = $feed->id;
 
-    Livewire::test(ManageFeed::class, ['id' => $feedId])
+    Livewire::test(ManageFeed::class, ['feed' => $feed])
         ->call('delete')
         ->assertRedirect('/');
 
