@@ -9,6 +9,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', Home::class);
 Route::get('/status', Status::class);
-Route::get('/feed/{id}', ManageFeed::class);
+Route::get('/feed/{feed}', ManageFeed::class);
 Route::get('/feed/{id}/confirm/{code}', [FeedController::class, 'confirm']);
 Route::get('/updates', Updates::class);

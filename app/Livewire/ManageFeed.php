@@ -12,11 +12,6 @@ class ManageFeed extends Component
 
     public bool $canCheck = false;
 
-    public function mount($id): void
-    {
-        $this->feed = Feed::findOrFail($id);
-    }
-
     public function refreshCheckAvailability(): void
     {
         if (! $this->feed->confirmed) {
