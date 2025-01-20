@@ -25,8 +25,7 @@ it('does not re-validate unchanged content', function () {
             ->push($fakeResponseBody, 200, ['Content-Type' => 'application/rss+xml'])
             ->push('', 200, ['Content-Type' => 'text/html']),
 
-    ]
-    );
+    ]);
 
     $oneMinuteAgo = now()->subMinutes(1);
 
@@ -58,4 +57,20 @@ it('does not re-validate unchanged content', function () {
     $this->assertEquals(Feed::STATUS_FAILING, $feed->status);
 
     $feed->delete();
+});
+
+it('handles connection failure', function () {
+    $feed = Feed::factory()->create();
+    $originalStatus = $feed->status;
+
+    // Simulate connection failure
+    Http::fake([
+        $feed->url => Http::failedConnection(),
+    ]);
+
+    $feed->check();
+
+    $this->assertTrue($feed->hasFailingConnection());
+    $this->assertEquals($originalStatus, $feed->status); // No change
+    $this->assertTrue(now()->diffInSeconds($feed->last_checked) < 15);
 });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ConnectionFailure;
 use App\Models\Feed;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -151,6 +152,99 @@ it('does not send email for unchanged health', function () {
 
     // Make sure no email is sent
     Mail::assertNothingSent();
+
+    $feed->delete();
+});
+
+it('does not send email for connection failure', function () {
+    Mail::fake();
+
+    $feed = Feed::factory()->create();
+
+    // Simulate connection failure
+    Http::fake([
+        $feed->url => Http::failedConnection(),
+    ]);
+
+    $feed->check();
+
+    $this->travel(12)->hours();
+    $feed->check();
+
+    // Make sure no email is sent
+    Mail::assertNothingSent();
+
+    $feed->delete();
+});
+
+it('sends email for repeated connection failures', function () {
+    Mail::fake();
+
+    $feed = Feed::factory()->create();
+
+    // Simulate connection failure
+    Http::fake([
+        $feed->url => Http::failedConnection(),
+    ]);
+
+    $feed->check();
+
+    $this->assertTrue($feed->hasFailingConnection());
+
+    $this->travel(12)->hours();
+    $feed->check();
+
+    $this->travel(16)->hours();
+    $feed->check();
+
+    $this->assertEquals(3, $feed->connectionFailures()->count());
+    Mail::assertSent(\App\Mail\FeedConnectionFailed::class);
+
+    $feed->delete();
+});
+
+it('sends email for restored connection', function () {
+    Mail::fake();
+
+    $feed = Feed::factory()
+        ->has(ConnectionFailure::factory()->count(3))
+        ->failing()
+        ->create();
+
+    // Create a “past” Check since the last two are compared to look for a state change
+    $initialCheck = new \App\Models\Check;
+    $initialCheck->feed_id = $feed->id;
+    $initialCheck->status = 200;
+    $initialCheck->is_valid = false;
+    $initialCheck->save();
+
+    $this->assertTrue($feed->hasFailingConnection());
+    $this->assertEquals(Feed::STATUS_FAILING, $feed->status);
+
+    $this->travel(5)->minutes();
+
+    FeedValidator::shouldReceive('feedIsValid')
+        ->once()
+        ->andReturn(true);
+
+    // Simulate happy check after connection failures
+    Http::fake([
+        $feed->url => Http::response(
+            file_get_contents(base_path('tests/Resources/valid-rss.xml')),
+            200,
+            ['Content-Type' => 'application/rss+xml']
+        ),
+    ]);
+    $feed->check();
+    $feed->refresh();
+
+    // Confirm now-healthy feed
+    $this->assertFalse($feed->hasFailingConnection());
+    $this->assertTrue($feed->statusHasChanged());
+    $this->assertEquals(Feed::STATUS_HEALTHY, $feed->status);
+
+    // Make sure one email is sent
+    Mail::assertSent(\App\Mail\FeedFixed::class);
 
     $feed->delete();
 });

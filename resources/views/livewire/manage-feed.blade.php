@@ -23,15 +23,21 @@
       <p>Check your email for a link to activate this monitor, or push the big button to delete it.</p>
     @endif
 
-    @if ($feed->confirmed && $feed->status === 'healthy')
-      <p wire:loading.remove wire:target="check">✅ Looks great!
-        @if ($feed->latestCheck() && $feed->latestCheck()->is_valid) <code>{{ $feed->latestCheck()->status }}</code> response with valid markup.@endif
-      </p>
-    @elseif ($feed->confirmed && $feed->status === 'failing')
-      <div wire:loading.remove wire:target="check">
-        <p>⛔️ Broken feed! Status code was <code>{{ $feed->latestCheck()->status }}</code>{{ $feed->latestCheck()->is_valid ? '.' : ' and it’s invalid.' }}</p>
-        <p><a href="{{ $feed->validatorUrl() }}" target="_blank">Troubleshoot →</a></p>
-      </div>
+    @if ($feed->hasFailingConnection())
+      <p>🤔️ Feed connection failed, which may only be a temporary clog in the tubes:</p>
+      <blockquote>{{ $feed->latestConnectionFailure()->message }}</blockquote>
+      <p>This doesn’t affect the check status, but if we can’t connect again within {{ config('app.connection_failure_threshold') / 60 / 60 }} hours it’ll be considered a failure and you’ll receive a notification.</p>
+    @else
+      @if ($feed->confirmed && $feed->status === 'healthy')
+        <p wire:loading.remove wire:target="check">✅ Looks great!
+          @if ($feed->latestCheck() && $feed->latestCheck()->is_valid) <code>{{ $feed->latestCheck()->status }}</code> response with valid markup.@endif
+        </p>
+      @elseif ($feed->confirmed && $feed->status === 'failing')
+        <div wire:loading.remove wire:target="check">
+          <p>⛔️ Broken feed! Status code was <code>{{ $feed->latestCheck()->status }}</code>{{ $feed->latestCheck()->is_valid ? '.' : ' and it’s invalid.' }}</p>
+          <p><a href="{{ $feed->validatorUrl() }}" target="_blank">Troubleshoot →</a></p>
+        </div>
+      @endif
     @endif
 
     <p wire:loading wire:target="check"><i>Checking...</i></p>

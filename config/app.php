@@ -9,6 +9,8 @@ return [
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'http://localhost'),
     'asset_url' => env('ASSET_URL'),
+    'notify_connection_failures' => env('NOTIFY_CONNECTION_FAILURES', true),
+    'connection_failure_threshold' => env('CONNECTION_FAILURE_THRESHOLD', 86400),
     'plausible_domain' => env('PLAUSIBLE_DOMAIN', null),
     'plausible_script' => env('PLAUSIBLE_SCRIPT', 'https://plausible.io/js/script.js'),
     'timezone' => 'UTC',

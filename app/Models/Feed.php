@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Mail\FeedConnectionFailed;
 use App\Mail\FeedFailed;
 use App\Mail\FeedFixed;
 use Carbon\Carbon;
 use FeedValidator;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -99,8 +101,42 @@ class Feed extends Model
     public function check(): bool
     {
         Log::debug('Checking '.$this->url);
-        $response = Http::withUserAgent('Feed Canary')
-            ->get($this->url);
+        $this->last_checked = now();
+
+        try {
+            $response = Http::withUserAgent('Feed Canary')
+                ->get($this->url);
+        } catch (ConnectionException|RequestException $e) {
+            Log::debug('Connection failed: '.$e->getMessage());
+
+            $failure = new ConnectionFailure;
+
+            $failure->feed_id = $this->id;
+            $failure->url = $this->url;
+            $failure->message = $e->getMessage();
+
+            $failure->save();
+
+            if ($failure->exceedsThreshold()) {
+                $this->status = self::STATUS_FAILING;
+
+                if ($this->confirmed && config('app.notify_connection_failures')) {
+                    Log::debug('Sending connection failure notification');
+
+                    if (config('app.notify_connection_failures')) {
+                        Mail::send(new FeedConnectionFailed($this, $failure));
+                        $this->last_notified = now();
+                    }
+                }
+
+                if (! $this->save()) {
+                    Log::error('Failed to save feed '.$this->id);
+                }
+            }
+
+            return false;
+        }
+
         $isValid = false;
 
         if ($response->successful()) {
@@ -133,7 +169,6 @@ class Feed extends Model
 
         $check->save();
 
-        $this->last_checked = now();
         $this->status = $isValid ? self::STATUS_HEALTHY : self::STATUS_FAILING;
 
         if ($this->confirmed && $this->statusHasChanged()) {
@@ -158,6 +193,29 @@ class Feed extends Model
     }
 
     /**
+     * Returns true if Feed Canary has not been able to connect to the feed.
+     */
+    public function hasFailingConnection(): bool
+    {
+        if (! $latestConnectionFailure = $this->latestConnectionFailure()) {
+            // If we don’t have any connection failures, we’re all good
+            return false;
+        }
+
+        if (! $latestCheck = $this->latestCheck()) {
+            // If we have a connection failure without any checks, that’s a problem
+            return true;
+        }
+
+        if ($latestConnectionFailure->created_at->gte($latestCheck->created_at)) {
+            // If the connection failure is more recent than the check, that’s a problem
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns checks against the feed.
      */
     public function checks(): HasMany
@@ -171,6 +229,24 @@ class Feed extends Model
     public function latestCheck(): ?Check
     {
         return $this->checks()
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Returns connection failures encountered when attempting to check the feed.
+     */
+    public function connectionFailures(): HasMany
+    {
+        return $this->hasMany(ConnectionFailure::class);
+    }
+
+    /**
+     * Returns the most recent ConnectionFailure, or `null` if there isn’t one.
+     */
+    public function latestConnectionFailure(): ?ConnectionFailure
+    {
+        return $this->connectionFailures()
             ->latest()
             ->first();
     }
