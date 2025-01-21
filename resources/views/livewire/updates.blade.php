@@ -1,6 +1,11 @@
 <div class="container">
   <h1>Updates</h1>
 
+  <h2 id="2025-01-21">2025-01-21</h2>
+  <ul>
+    <li>Quietly started logging connection exceptions, with the eventual goal of failing feeds and sending notifications when Feed Canary fails to connect within 24 hours.</li>
+  </ul>
+
   <h2 id="2024-09-29">2024-09-29</h2>
   <ul>
     <li>Overhauled front end to use Livewire and Blade.</li>
