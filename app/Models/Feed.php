@@ -123,10 +123,8 @@ class Feed extends Model
                 if ($this->confirmed && config('app.notify_connection_failures')) {
                     Log::debug('Sending connection failure notification');
 
-                    if (config('app.notify_connection_failures')) {
-                        Mail::send(new FeedConnectionFailed($this, $failure));
-                        $this->last_notified = now();
-                    }
+                    Mail::send(new FeedConnectionFailed($this, $failure));
+                    $this->last_notified = now();
                 }
 
                 if (! $this->save()) {
