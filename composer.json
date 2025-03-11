@@ -5,7 +5,7 @@
     "keywords": ["laravel", "feeds"],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "fedeisas/laravel-mail-css-inliner": "^5.3",
         "fungku/markup-validator-php": "^0.2.1",
         "guzzlehttp/guzzle": "^7.2",
