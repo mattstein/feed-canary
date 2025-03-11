@@ -10,7 +10,7 @@ database:
     type: postgres
     version: "16"
 composer_version: "2"
-nodejs_version: "18"
+nodejs_version: "20"
 web_extra_exposed_ports:
   - name: vite
     container_port: 3000
