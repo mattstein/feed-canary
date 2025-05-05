@@ -25,6 +25,7 @@
     "require-dev": {
         "enlightn/enlightn": "^2.10",
         "fakerphp/faker": "^1.9.1",
+        "itsgoingd/clockwork": "^5.3",
         "larastan/larastan": "^2.9",
         "laravel/pint": "^1.0",
         "mockery/mockery": "^1.4.4",
