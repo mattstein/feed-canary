@@ -87,6 +87,10 @@ return [
             'transport' => 'resend',
         ],
 
+        'unsend' => [
+            'transport' => 'unsend',
+        ],
+
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
