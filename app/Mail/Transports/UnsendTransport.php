@@ -16,6 +16,7 @@ class UnsendTransport extends AbstractTransport
      */
     protected function doSend(SentMessage $message): void
     {
+        // @phpstan-ignore-next-line
         $email = MessageConverter::toEmail($message->getOriginalMessage());
         $apiKey = env('UNSEND_API_KEY');
         $baseUrl = Uri::to('/')
