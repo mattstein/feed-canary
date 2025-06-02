@@ -8,6 +8,7 @@ use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\MessageConverter;
+use Symfony\Component\Mime\Part\DataPart;
 
 class UnsendTransport extends AbstractTransport
 {
@@ -45,19 +46,20 @@ class UnsendTransport extends AbstractTransport
             })->toArray(),
             'text' => $email->getTextBody(),
             'html' => $email->getHtmlBody(),
-            // TODO: support attachments
-            // 'attachments' => '',
+            'attachments' => collect($email->getAttachments())->map(function (DataPart $part) {
+                return [
+                    'filename' => $part->getFilename(),
+                    'content' => base64_encode($part->getBody()),
+                ];
+            })->toArray(),
         ];
 
-        $response = Http::withHeaders([
+        Http::withHeaders([
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer '.$apiKey,
         ])
             ->baseUrl($baseUrl)
-            ->post(
-                '/api/v1/emails',
-                $postBody
-            );
+            ->post('/api/v1/emails', $postBody);
     }
 
     /**
