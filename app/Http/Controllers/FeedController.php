@@ -14,6 +14,15 @@ class FeedController extends Controller
         ])->first();
 
         if (! $feed) {
+            $confirmedFeed = Feed::where([
+                'id' => $id,
+                'confirmed' => true,
+            ])->first();
+
+            if ($confirmedFeed) {
+                return redirect($confirmedFeed->manageUrl());
+            }
+
             abort(404);
         }
 
