@@ -4,8 +4,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="x-apple-disable-message-reformatting" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-{{--  <meta name="color-scheme" content="light dark" />--}}
-{{--  <meta name="supported-color-schemes" content="light dark" />--}}
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
   <title></title>
   <style type="text/css" rel="stylesheet" media="all">
     /* Base ------------------------------ */
@@ -185,11 +185,19 @@
         width: 100% !important;
       }
     }
+    /*Dark Mode ------------------------------ */
 
-    {{--
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #191C20 !important;
+        color: #DADADA !important;
+      }
+
+      p {
+        color: #DADADA !important;
+      }
+
+      .email-masthead_name {
         color: #DADADA !important;
       }
     }
@@ -198,7 +206,16 @@
       color-scheme: light dark;
       supported-color-schemes: light dark;
     }
-    --}}
+
+    [data-ogsc] body {
+      background-color: #191C20 !important;
+      color: #DADADA !important;
+    }
+
+    [data-ogsc] p,
+    [data-ogsc] .email-masthead_name {
+      color: #DADADA !important;
+    }
   </style>
   <!--[if mso]>
   <style type="text/css">
