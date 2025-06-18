@@ -13,7 +13,6 @@
         "laminas/laminas-feed": "^2.22",
         "laravel/framework": "^11.0",
         "laravel/horizon": "^5.26",
-        "laravel/nightwatch": "^1.7",
         "laravel/tinker": "^2.8",
         "livewire/livewire": "^3.5",
         "marcandreappel/laravel-backblaze-b2": "^2.0",
