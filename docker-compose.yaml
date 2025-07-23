@@ -42,3 +42,17 @@ services:
       retries: 5
       start_period: 10s
       timeout: 10s
+  octane:
+    build:
+      context: .
+      dockerfile: ./.docker/octane/Dockerfile
+    volumes:
+      - ./storage:/var/www/html/storage
+    healthcheck:
+      test: ["CMD-SHELL", "php artisan octane:status | grep 'server is running'"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
+    ports:
+      - 8000:8000
