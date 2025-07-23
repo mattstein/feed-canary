@@ -2,10 +2,9 @@ services:
   app:
     environment:
       AUTORUN_ENABLED: true
-      PHP_FPM_POOL_NAME: "feed-canary_php"
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./.docker/web/Dockerfile
     volumes:
       - './storage:/var/www/html/storage'
     healthcheck:
@@ -17,37 +16,21 @@ services:
   scheduler:
     build:
       context: .
-      dockerfile: Dockerfile
-    environment:
-      PHP_FPM_POOL_NAME: "feed-canary_scheduler"
+      dockerfile: ./.docker/cli/Dockerfile
     command: [ "php", "/var/www/html/artisan", "schedule:work" ]
     volumes:
       - ./storage:/var/www/html/storage
-    healthcheck:
-      test: curl --fail http://localhost:8080/healthcheck || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
   queue:
     build:
       context: .
-      dockerfile: Dockerfile
-    environment:
-      PHP_FPM_POOL_NAME: "feed-canary_queue"
+      dockerfile: ./.docker/cli/Dockerfile
     command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
     volumes:
       - ./storage:/var/www/html/storage
-    healthcheck:
-      test: curl --fail http://localhost:8080/healthcheck || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
   horizon:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./.docker/web/Dockerfile
     environment:
       PHP_FPM_POOL_NAME: "feed-canary_horizon"
     command: [ "php", "/var/www/html/artisan", "horizon" ]
