@@ -32,6 +32,6 @@ class PruneChecks extends Command
             ->where('created_at', '<=', $cutoff)
             ->delete();
 
-        $this->line($rowsDeleted.' rows deleted.');
+        $this->line(number_format($rowsDeleted).' rows deleted.');
     }
 }
