@@ -17,14 +17,14 @@ services:
     build:
       context: .
       dockerfile: ./.docker/cli/Dockerfile
-    command: [ "php", "/var/www/html/artisan", "schedule:work" ]
+    command: [ "php", "artisan", "schedule:work" ]
     volumes:
       - ./storage:/var/www/html/storage
   queue:
     build:
       context: .
       dockerfile: ./.docker/cli/Dockerfile
-    command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
+    command: ["php", "artisan", "queue:work", "--tries=3"]
     volumes:
       - ./storage:/var/www/html/storage
   horizon:
@@ -33,7 +33,7 @@ services:
       dockerfile: ./.docker/web/Dockerfile
     environment:
       PHP_FPM_POOL_NAME: "feed-canary_horizon"
-    command: [ "php", "/var/www/html/artisan", "horizon" ]
+    command: [ "php", "artisan", "horizon" ]
     volumes:
       - ./storage:/var/www/html/storage
     healthcheck:
