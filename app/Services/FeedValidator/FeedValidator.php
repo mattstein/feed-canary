@@ -51,7 +51,8 @@ class FeedValidator
         }
 
         try {
-            return (new FeedMarkupValidator)->validate($this->feed->url);
+            return (new FeedMarkupValidator(new \Fungku\MarkupValidator\W3CFeedValidator))
+                ->validate($this->feed->url);
         } catch (\ErrorException $exception) {
             Log::debug('W3C validator had a problem');
 

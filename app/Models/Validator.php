@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Fungku\MarkupValidator\FeedValidator;
+use Fungku\MarkupValidator\FeedValidator as FeedMarkupValidator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -51,7 +51,8 @@ class Validator extends Model
         }
 
         try {
-            return (new FeedValidator)->validate($this->feed->url);
+            return (new FeedMarkupValidator(new \Fungku\MarkupValidator\W3CFeedValidator))
+                ->validate($this->feed->url);
         } catch (\ErrorException $exception) {
             Log::debug('W3C validator had a problem');
 
@@ -75,7 +76,7 @@ class Validator extends Model
 
     private function isValidXmlWithValidatorDotOrg(): bool
     {
-        $response = Http::withUserAgent('Feed Canary')
+        $response = Http::withUserAgent(config('app.user_agent'))
             ->get('https://www.feedvalidator.org/check.cgi?url='.urlencode($this->feed->url));
 
         if ($response->successful()) {
