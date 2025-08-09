@@ -7,13 +7,14 @@ use App\Mail\FeedFailed;
 use App\Mail\FeedFixed;
 use Carbon\Carbon;
 use FeedValidator;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -117,7 +118,7 @@ class Feed extends Model
             $response = Http::withUserAgent(config('app.user_agent'))
                 ->retry(2, 250)
                 ->get($this->url);
-        } catch (ConnectionException|RequestException $e) {
+        } catch (ConnectionException|RequestException|GuzzleRequestException $e) {
             Log::debug('Connection failed: '.$e->getMessage());
 
             $failure = new ConnectionFailure;
