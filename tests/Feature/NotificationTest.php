@@ -41,11 +41,10 @@ it('does not send email on repeat failure', function () {
     $this->assertTrue($feed->confirmed);
 
     // Create a “past” Check since the last two are compared to look for a state change
-    $initialCheck = new \App\Models\Check;
-    $initialCheck->feed_id = $feed->id;
-    $initialCheck->status = 200;
-    $initialCheck->is_valid = false;
-    $initialCheck->save();
+    makePastCheck($feed, [
+        'status' => 200,
+        'is_valid' => false,
+    ]);
 
     // Return an empty body with `text/html`; not a feed!
     Http::fake([
@@ -74,13 +73,12 @@ it('sends email on new fix', function () {
     $oneMinuteAgo = now()->subMinutes(1);
 
     // Create a “past” Check since the last two are compared to look for a state change
-    $initialCheck = new \App\Models\Check;
-    $initialCheck->feed_id = $feed->id;
-    $initialCheck->status = 200;
-    $initialCheck->is_valid = false;
-    $initialCheck->created_at = $oneMinuteAgo;
-    $initialCheck->updated_at = $oneMinuteAgo;
-    $initialCheck->save();
+    makePastCheck($feed, [
+        'status' => 200,
+        'is_valid' => false,
+        'created_at' => $oneMinuteAgo,
+        'updated_at' => $oneMinuteAgo,
+    ]);
 
     FeedValidator::shouldReceive('feedIsValid')
         ->once()
@@ -118,13 +116,12 @@ it('does not send email for unchanged health', function () {
     $oneMinuteAgo = now()->subMinutes(1);
 
     // Create a “past” Check since the last two are compared to look for a state change
-    $initialCheck = new \App\Models\Check;
-    $initialCheck->feed_id = $feed->id;
-    $initialCheck->status = 200;
-    $initialCheck->is_valid = true;
-    $initialCheck->created_at = $oneMinuteAgo;
-    $initialCheck->updated_at = $oneMinuteAgo;
-    $initialCheck->save();
+    makePastCheck($feed, [
+        'status' => 200,
+        'is_valid' => true,
+        'created_at' => $oneMinuteAgo,
+        'updated_at' => $oneMinuteAgo,
+    ]);
 
     FeedValidator::shouldReceive('feedIsValid')
         ->once()
@@ -212,11 +209,10 @@ it('sends email for restored connection', function () {
         ->create();
 
     // Create a “past” Check since the last two are compared to look for a state change
-    $initialCheck = new \App\Models\Check;
-    $initialCheck->feed_id = $feed->id;
-    $initialCheck->status = 200;
-    $initialCheck->is_valid = false;
-    $initialCheck->save();
+    makePastCheck($feed, [
+        'status' => 200,
+        'is_valid' => false,
+    ]);
 
     $this->assertTrue($feed->hasFailingConnection());
     $this->assertEquals(Feed::STATUS_FAILING, $feed->status);

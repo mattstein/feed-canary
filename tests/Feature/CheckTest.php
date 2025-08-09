@@ -30,17 +30,14 @@ it('does not re-validate unchanged content', function () {
     $oneMinuteAgo = now()->subMinutes(1);
 
     // Create a pretend previous check that was successful, with the fake response hash
-    $check = new Check;
-
-    $check->feed_id = $feed->id;
-    $check->status = 200;
-    $check->headers = json_encode([]);
-    $check->hash = md5($fakeResponseBody);
-    $check->created_at = $oneMinuteAgo;
-    $check->updated_at = $oneMinuteAgo;
-    $check->is_valid = true;
-
-    $check->save();
+    makePastCheck($feed, [
+        'status' => 200,
+        'headers' => [],
+        'hash' => md5($fakeResponseBody),
+        'created_at' => $oneMinuteAgo,
+        'updated_at' => $oneMinuteAgo,
+        'is_valid' => true,
+    ]);
 
     // After re-receiving the same feed content, external validation should be skipped
     FeedValidator::shouldReceive('feedIsValid')->times(0);

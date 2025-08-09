@@ -46,3 +46,30 @@ function something()
 {
     // ..
 }
+
+/**
+ * Helper to create a backdated check for a feed with sensible defaults.
+ */
+function makePastCheck(App\Models\Feed $feed, array $overrides = []): App\Models\Check
+{
+    $oneMinuteAgo = now()->subMinutes(1);
+
+    $base = [
+        'status' => 200,
+        'headers' => [],
+        'hash' => null,
+        'is_valid' => false,
+        'created_at' => $oneMinuteAgo,
+        'updated_at' => $oneMinuteAgo,
+    ];
+
+    $state = array_merge($base, $overrides);
+
+    /** @var App\Models\Check $check */
+    $check = App\Models\Check::factory()
+        ->for($feed, 'feed')
+        ->state($state)
+        ->create();
+
+    return $check;
+}
