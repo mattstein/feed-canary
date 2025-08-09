@@ -40,6 +40,15 @@ class Feed extends Model
     protected $fillable = ['url', 'email', 'type', 'status', 'confirmed', 'last_checked', 'last_notified', 'confirmation_code'];
 
     /**
+     * Attribute casting for convenience and correctness.
+     */
+    protected $casts = [
+        'confirmed' => 'boolean',
+        'last_checked' => 'datetime',
+        'last_notified' => 'datetime',
+    ];
+
+    /**
      * Feed is responding and valid
      */
     public const string STATUS_HEALTHY = 'healthy';
@@ -84,11 +93,12 @@ class Feed extends Model
      */
     public function validatorUrl(): string
     {
-        $baseUrl = $this->getFormat() === self::FORMAT_JSON ?
-            'https://validator.jsonfeed.org/?url=' :
-            'https://validator.w3.org/feed/check.cgi?url=';
+        $base = match ($this->getFormat()) {
+            self::FORMAT_JSON => 'https://validator.jsonfeed.org/?url=',
+            default => 'https://validator.w3.org/feed/check.cgi?url=',
+        };
 
-        return $baseUrl.urlencode($this->url);
+        return $base.urlencode($this->url);
     }
 
     /**
@@ -104,7 +114,8 @@ class Feed extends Model
         $this->last_checked = now();
 
         try {
-            $response = Http::withUserAgent('Feed Canary')
+            $response = Http::withUserAgent(config('app.user_agent'))
+                ->retry(2, 250)
                 ->get($this->url);
         } catch (ConnectionException|RequestException $e) {
             Log::debug('Connection failed: '.$e->getMessage());
@@ -161,7 +172,7 @@ class Feed extends Model
 
         $check->feed_id = $this->id;
         $check->status = $response->status();
-        $check->headers = json_encode($response->headers());
+        $check->headers = $response->headers();
         $check->hash = $hash ?? null;
         $check->is_valid = $isValid;
 
@@ -282,6 +293,7 @@ class Feed extends Model
             'application/rss+xml',
             'application/atom+xml',
             'application/json',
+            'application/feed+json',
             'application/x-rss+xml',
             'text/xml',
         ];
@@ -300,8 +312,11 @@ class Feed extends Model
      */
     public function statusHasChanged(): bool
     {
-        $currentStatus = $this->latestCheck()->is_valid ?? null;
-        $previousStatus = $this->previousCheck()->is_valid ?? null;
+        $latest = $this->latestCheck();
+        $previous = $this->previousCheck();
+
+        $currentStatus = $latest->is_valid ?? null;
+        $previousStatus = $previous->is_valid ?? null;
 
         return $currentStatus !== $previousStatus;
     }
@@ -311,8 +326,11 @@ class Feed extends Model
      */
     public function contentHasChanged(): bool
     {
-        $currentHash = $this->latestCheck()->hash ?? null;
-        $previousHash = $this->previousCheck()->hash ?? null;
+        $latest = $this->latestCheck();
+        $previous = $this->previousCheck();
+
+        $currentHash = $latest->hash ?? null;
+        $previousHash = $previous->hash ?? null;
 
         return $currentHash !== $previousHash;
     }
@@ -322,14 +340,21 @@ class Feed extends Model
      */
     public static function getAllReadyForCheck(): Builder
     {
+        return self::query()->readyForCheck();
+    }
+
+    /**
+     * Scope: confirmed feeds ready to be checked (not checked in last 5 minutes).
+     */
+    public function scopeReadyForCheck(Builder $query): Builder
+    {
         $cutoff = Carbon::now()->subMinutes(5);
 
-        return self::query()
-            ->where(function ($query) {
-                $cutoff = Carbon::now()->subMinutes(5);
-                $query->where('last_checked', '<=', $cutoff)
-                    ->orWhere('last_checked', null);
-            })
-            ->where('confirmed', '=', 1);
+        return $query
+            ->where('confirmed', 1)
+            ->where(function (Builder $q) use ($cutoff) {
+                $q->where('last_checked', '<=', $cutoff)
+                    ->orWhereNull('last_checked');
+            });
     }
 }
