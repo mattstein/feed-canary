@@ -75,7 +75,7 @@ class FeedValidator
 
     private function isValidXmlWithValidatorDotOrg(): bool
     {
-        $response = Http::withUserAgent('Feed Canary')
+        $response = Http::withUserAgent(config('app.user_agent'))
             ->get('https://www.feedvalidator.org/check.cgi?url='.urlencode($this->feed->url));
 
         if ($response->successful()) {
