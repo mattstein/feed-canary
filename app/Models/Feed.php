@@ -112,6 +112,13 @@ class Feed extends Model
     public function check(): bool
     {
         Log::debug('Checking '.$this->url);
+        // Attach Sentry context so any exceptions include feed identifiers
+        if (app()->bound('sentry')) {
+            app('sentry')->configureScope(function (\Sentry\State\Scope $scope) {
+                $scope->setTag('feed_id', (string) $this->id);
+                $scope->setTag('feed_url', (string) $this->url);
+            });
+        }
         $this->last_checked = now();
 
         try {
@@ -120,6 +127,15 @@ class Feed extends Model
                 ->get($this->url);
         } catch (ConnectionException|RequestException|GuzzleRequestException $e) {
             Log::debug('Connection failed: '.$e->getMessage());
+
+            // Capture exception with Sentry and feed context
+            if (app()->bound('sentry')) {
+                app('sentry')->withScope(function (\Sentry\State\Scope $scope) use ($e) {
+                    $scope->setTag('feed_id', (string) $this->id);
+                    $scope->setTag('feed_url', (string) $this->url);
+                    app('sentry')->captureException($e);
+                });
+            }
 
             $failure = new ConnectionFailure;
 

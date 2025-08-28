@@ -22,6 +22,14 @@ class FeedValidator
         $this->feed = $feed;
         $this->body = $body;
 
+        // Ensure Sentry context includes feed identifiers during validation
+        if (app()->bound('sentry')) {
+            app('sentry')->configureScope(function (\Sentry\State\Scope $scope) {
+                $scope->setTag('feed_id', (string) $this->feed->id);
+                $scope->setTag('feed_url', (string) $this->feed->url);
+            });
+        }
+
         if ($this->feed->getFormat() === 'json') {
             return $this->isValidJson();
         }
