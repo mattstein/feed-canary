@@ -195,7 +195,58 @@ it('sends email for repeated connection failures', function () {
     $feed->check();
 
     $this->assertEquals(3, $feed->connectionFailures()->count());
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class);
+    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+
+    $feed->delete();
+});
+
+it('sends fix email after connection failures resolve', function () {
+    Mail::fake();
+
+    $feed = Feed::factory()->create();
+
+    $validBody = file_get_contents(base_path('tests/Resources/valid-rss.xml'));
+
+    $sequence = Http::sequence();
+
+    // Three checks with two attempts each = six failures, then a success.
+    for ($i = 0; $i < 6; $i++) {
+        $sequence->pushFailedConnection();
+    }
+
+    $sequence->push($validBody, 200, ['Content-Type' => 'application/rss+xml']);
+
+    Http::fake([
+        "{$feed->url}*" => $sequence,
+        '*' => Http::response(), // Prevent stray HTTP calls in tests
+    ]);
+
+    $feed->check();
+
+    $this->travel(12)->hours();
+    $feed->check();
+
+    $this->travel(16)->hours();
+    $feed->check();
+    $feed->refresh();
+
+    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    $this->assertEquals(Feed::STATUS_FAILING, $feed->status);
+    $this->assertTrue($feed->hasFailingConnection());
+
+    $this->travel(5)->minutes();
+
+    FeedValidator::shouldReceive('feedIsValid')
+        ->once()
+        ->andReturn(true);
+
+    $feed->check();
+    $feed->refresh();
+
+    $this->assertFalse($feed->hasFailingConnection());
+    $this->assertEquals(Feed::STATUS_HEALTHY, $feed->status);
+
+    Mail::assertSent(\App\Mail\FeedFixed::class, 1);
 
     $feed->delete();
 });

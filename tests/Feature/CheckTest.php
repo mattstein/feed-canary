@@ -57,7 +57,9 @@ it('does not re-validate unchanged content', function () {
 });
 
 it('handles connection failure', function () {
-    $feed = Feed::factory()->create();
+    $feed = Feed::factory()->create([
+        'last_checked' => now()->subMinutes(10),
+    ]);
     $originalStatus = $feed->status;
 
     // Simulate connection failure
@@ -66,6 +68,7 @@ it('handles connection failure', function () {
     ]);
 
     $feed->check();
+    $feed->refresh();
 
     $this->assertTrue($feed->hasFailingConnection());
     $this->assertEquals($originalStatus, $feed->status); // No change

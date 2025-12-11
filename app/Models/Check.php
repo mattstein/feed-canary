@@ -18,6 +18,11 @@ class Check extends Model
 {
     use HasFactory;
 
+    /**
+     * Pseudo-status stored when a connection failure prevents receiving a response.
+     */
+    public const int STATUS_CONNECTION_FAILURE = 0;
+
     protected $fillable = ['feed_id', 'status', 'headers', 'hash', 'is_valid'];
 
     protected $casts = [

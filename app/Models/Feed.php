@@ -119,7 +119,8 @@ class Feed extends Model
                 $scope->setTag('feed_url', (string) $this->url);
             });
         }
-        $this->last_checked = now();
+        $now = now();
+        $this->last_checked = $now;
 
         try {
             $response = Http::withUserAgent(config('app.user_agent'))
@@ -148,16 +149,31 @@ class Feed extends Model
             if ($failure->exceedsThreshold()) {
                 $this->status = self::STATUS_FAILING;
 
-                if ($this->confirmed && config('app.notify_connection_failures')) {
+                if ($this->latestCheck()?->status !== Check::STATUS_CONNECTION_FAILURE) {
+                    $this->checks()->create([
+                        'status' => Check::STATUS_CONNECTION_FAILURE,
+                        'headers' => [],
+                        'hash' => null,
+                        'is_valid' => false,
+                    ]);
+                }
+
+                $latestCheck = $this->latestCheck();
+
+                $shouldNotify = $this->confirmed
+                    && config('app.notify_connection_failures')
+                    && ($this->last_notified === null || ($latestCheck && $this->last_notified->lt($latestCheck->created_at)));
+
+                if ($shouldNotify) {
                     Log::debug('Sending connection failure notification');
 
                     Mail::send(new FeedConnectionFailed($this, $failure));
-                    $this->last_notified = now();
+                    $this->last_notified = $now;
                 }
+            }
 
-                if (! $this->save()) {
-                    Log::error('Failed to save feed '.$this->id);
-                }
+            if (! $this->save()) {
+                Log::error('Failed to save feed '.$this->id);
             }
 
             return false;
