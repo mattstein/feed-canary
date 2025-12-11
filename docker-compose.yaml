@@ -20,6 +20,12 @@ services:
     command: [ "php", "artisan", "schedule:work" ]
     volumes:
       - ./storage:/var/www/html/storage
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep 'artisan schedule:work' | grep -v grep || exit 1"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
   queue:
     build:
       context: .
