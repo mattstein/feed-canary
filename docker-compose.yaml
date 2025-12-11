@@ -37,7 +37,7 @@ services:
     volumes:
       - ./storage:/var/www/html/storage
     healthcheck:
-      test: curl --fail http://localhost:8080/healthcheck || exit 1
+      test: ["CMD-SHELL", "ps aux | grep 'artisan horizon' | grep -v grep || exit 1"]
       interval: 10s
       retries: 5
       start_period: 10s
