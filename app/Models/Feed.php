@@ -26,8 +26,8 @@ use Illuminate\Support\Facades\Mail;
  * @property string $type
  * @property string $status
  * @property bool $confirmed
- * @property string $last_checked
- * @property string $last_notified
+ * @property \Illuminate\Support\Carbon|null $last_checked
+ * @property \Illuminate\Support\Carbon|null $last_notified
  * @property string $confirmation_code
  */
 class Feed extends Model
