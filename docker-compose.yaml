@@ -33,6 +33,12 @@ services:
     command: ["php", "artisan", "queue:work", "--tries=3"]
     volumes:
       - ./storage:/var/www/html/storage
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep 'artisan queue:work' | grep -v grep || exit 1"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
   horizon:
     build:
       context: .
