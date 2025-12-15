@@ -65,7 +65,7 @@ class FeedValidator
             Log::debug('W3C validator had a problem');
 
             // Last-ditch effort if the W3C validator returned a 500 error
-            return $this->isValidXmlWithValidatorDotOrg();
+            return $this->isValidXmlRssBoardValidator();
         }
     }
 
@@ -91,6 +91,20 @@ class FeedValidator
             $responseText = $response->body();
 
             return str_contains($responseText, 'Congratulations!');
+        }
+
+        return false;
+    }
+
+    private function isValidXmlRssBoardValidator(): bool
+    {
+        $response = Http::withUserAgent(config('app.user_agent'))
+            ->get('https://www.rssboard.org/rss-validator/check.cgi?url='.urlencode($this->feed->url));
+
+        if ($response->successful()) {
+            $responseText = $response->body();
+
+            return str_contains($responseText, 'This is a valid RSS feed.');
         }
 
         return false;
