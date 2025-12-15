@@ -82,20 +82,6 @@ class FeedValidator
         return false;
     }
 
-    private function isValidXmlWithValidatorDotOrg(): bool
-    {
-        $response = Http::withUserAgent(config('app.user_agent'))
-            ->get('https://www.feedvalidator.org/check.cgi?url='.urlencode($this->feed->url));
-
-        if ($response->successful()) {
-            $responseText = $response->body();
-
-            return str_contains($responseText, 'Congratulations!');
-        }
-
-        return false;
-    }
-
     private function isValidXmlRssBoardValidator(): bool
     {
         $response = Http::withUserAgent(config('app.user_agent'))
