@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'mailgun'),
+    'default' => env('MAIL_MAILER', 'unsend'),
 
     /*
     |--------------------------------------------------------------------------
@@ -94,7 +94,6 @@ return [
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
-                'mailgun',
                 'mailtrap',
                 'smtp',
                 'log',
