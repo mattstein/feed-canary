@@ -49,8 +49,73 @@
     @if ($feed->latestCheck())
       <p>Last checked <relative-time update="1"><time datetime="{{ $feed->latestCheck()->updated_at->format(DATE_ATOM) }}">{{ $feed->latestCheck()->updated_at }}</time></relative-time>.</p>
     @endif
-    @if ($feed->previousCheck())
-      <p>Previously {{ $feed->previousCheck()->is_valid ? 'valid' : 'invalid' }} when checked <relative-time update="1"><time datetime="{{ $feed->previousCheck()->updated_at->format(DATE_ATOM) }}">{{ $feed->latestCheck()->updated_at }}</time></relative-time>.</p>
+
+    @if (count($recentHistory) > 0)
+      <style>
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.1);
+          }
+        }
+        .check-pulse {
+          animation: pulse 2s ease-in-out infinite;
+        }
+      </style>
+      <div style="display: flex; gap: 8px; align-items: center; margin-top: 12px;">
+        <span style="font-size: 14px;">Recent checks:</span>
+        <div style="display: flex; gap: 6px;">
+          @foreach (array_reverse($recentHistory) as $index => $item)
+            @php
+              // Determine color based on check status
+              if ($item['type'] === 'connection_failure' && !$item['exceeded_threshold']) {
+                // Temporary connection failure (within threshold)
+                $color = '#f59e0b'; // orange
+                $status = 'Connection issue (temporary)';
+              } elseif ($item['status'] === 0 || !$item['is_valid']) {
+                // Failed check (connection failure exceeded threshold or invalid feed)
+                $color = '#ef4444'; // red
+                $status = $item['status'] === 0 ? 'Connection failed' : 'Invalid feed';
+              } else {
+                // Healthy check
+                $color = '#10b981'; // green
+                $status = 'Healthy';
+              }
+
+              // Format relative time
+              $timestamp = \Carbon\Carbon::parse($item['timestamp']);
+              $now = now();
+              $diffInMinutes = $timestamp->diffInMinutes($now);
+              $diffInHours = $timestamp->diffInHours($now);
+              $diffInDays = $timestamp->diffInDays($now);
+
+              if ($diffInMinutes < 60) {
+                $relativeTime = $diffInMinutes . ' minute' . ($diffInMinutes !== 1 ? 's' : '') . ' ago';
+              } elseif ($diffInHours < 24) {
+                $relativeTime = $diffInHours . ' hour' . ($diffInHours !== 1 ? 's' : '') . ' ago';
+              } else {
+                $relativeTime = $diffInDays . ' day' . ($diffInDays !== 1 ? 's' : '') . ' ago';
+              }
+
+              // Format actual time with timezone
+              $actualTime = $timestamp->format('g:i a T');
+              $title = $status . ': ' . $relativeTime . ' (' . $actualTime . ')';
+
+              // Most recent item (last in reversed array) gets the pulse animation
+              $pulseClass = ($index === count($recentHistory) - 1) ? 'check-pulse' : '';
+            @endphp
+            <div
+              class="{{ $pulseClass }}"
+              style="width: 16px; height: 16px; border-radius: 50%; background-color: {{ $color }}; flex-shrink: 0; cursor: help;"
+              title="{{ $title }}"
+            ></div>
+          @endforeach
+        </div>
+      </div>
     @endif
   </div>
 

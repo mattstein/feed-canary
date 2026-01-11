@@ -127,17 +127,6 @@ class Feed extends Model
                 ->retry(2, 250)
                 ->get($this->url);
         } catch (ConnectionException|RequestException|GuzzleRequestException $e) {
-            Log::debug('Connection failed: '.$e->getMessage());
-
-            // Capture exception with Sentry and feed context
-            if (app()->bound('sentry')) {
-                app('sentry')->withScope(function (\Sentry\State\Scope $scope) use ($e) {
-                    $scope->setTag('feed_id', (string) $this->id);
-                    $scope->setTag('feed_url', (string) $this->url);
-                    app('sentry')->captureException($e);
-                });
-            }
-
             $failure = new ConnectionFailure;
 
             $failure->feed_id = $this->id;
@@ -147,6 +136,25 @@ class Feed extends Model
             $failure->save();
 
             if ($failure->exceedsThreshold()) {
+                // Only log and capture persistent failures (exceeded threshold)
+                Log::warning('Connection failed (threshold exceeded): '.$e->getMessage(), [
+                    'feed_id' => $this->id,
+                    'feed_url' => $this->url,
+                ]);
+
+                // Capture exception with Sentry for persistent issues only
+                if (app()->bound('sentry')) {
+                    app('sentry')->withScope(function (\Sentry\State\Scope $scope) use ($e) {
+                        $scope->setTag('feed_id', (string) $this->id);
+                        $scope->setTag('feed_url', (string) $this->url);
+                        $scope->setContext('failure', [
+                            'threshold_exceeded' => true,
+                            'threshold_seconds' => config('app.connection_failure_threshold'),
+                        ]);
+                        app('sentry')->captureException($e);
+                    });
+                }
+
                 $this->status = self::STATUS_FAILING;
 
                 if ($this->latestCheck()?->status !== Check::STATUS_CONNECTION_FAILURE) {
@@ -170,6 +178,12 @@ class Feed extends Model
                     Mail::send(new FeedConnectionFailed($this, $failure));
                     $this->last_notified = $now;
                 }
+            } else {
+                // Temporary failure within threshold - log at debug level only
+                Log::debug('Connection failed (within threshold): '.$e->getMessage(), [
+                    'feed_id' => $this->id,
+                    'feed_url' => $this->url,
+                ]);
             }
 
             if (! $this->save()) {

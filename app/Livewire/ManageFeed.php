@@ -49,11 +49,70 @@ class ManageFeed extends Component
             ->with('message', 'Your feed monitor has been deleted.');
     }
 
+    /**
+     * Get recent check history (up to 10 items) combining checks and connection failures.
+     * Returns an array of items with 'type', 'timestamp', 'is_valid', and 'status' keys.
+     */
+    public function getRecentCheckHistory(): array
+    {
+        // Get up to 15 most recent checks (to ensure we have enough after filtering)
+        $checks = $this->feed->checks()
+            ->latest()
+            ->limit(15)
+            ->get()
+            ->map(fn($check) => [
+                'type' => 'check',
+                'timestamp' => $check->created_at,
+                'is_valid' => $check->is_valid,
+                'status' => $check->status,
+            ]);
+
+        // Get up to 15 most recent connection failures
+        $failures = $this->feed->connectionFailures()
+            ->latest()
+            ->limit(15)
+            ->get()
+            ->map(fn($failure) => [
+                'type' => 'connection_failure',
+                'timestamp' => $failure->created_at,
+                'is_valid' => false,
+                'status' => 0,
+                'exceeded_threshold' => $failure->exceedsThreshold(),
+            ]);
+
+        // Merge and sort by timestamp descending
+        $merged = collect($checks)
+            ->concat($failures)
+            ->sortByDesc('timestamp');
+
+        // Remove duplicate connection failures that have a corresponding Check record
+        // (when a connection failure exceeds threshold, both records are created)
+        $deduplicated = $merged->filter(function ($item, $index) use ($merged) {
+            if ($item['type'] !== 'connection_failure') {
+                return true; // Keep all checks
+            }
+
+            // Check if there's a corresponding Check with status 0 within 5 seconds
+            return !$merged->contains(function ($other) use ($item) {
+                return $other['type'] === 'check'
+                    && $other['status'] === 0
+                    && abs($other['timestamp']->diffInSeconds($item['timestamp'])) <= 5;
+            });
+        });
+
+        return $deduplicated
+            ->take(10)
+            ->values()
+            ->all();
+    }
+
     #[Title('Manage Feed')]
     public function render()
     {
         $this->refreshCheckAvailability();
 
-        return view('livewire.manage-feed');
+        return view('livewire.manage-feed', [
+            'recentHistory' => $this->getRecentCheckHistory(),
+        ]);
     }
 }
