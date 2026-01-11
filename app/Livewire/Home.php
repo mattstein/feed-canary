@@ -39,7 +39,7 @@ class Home extends Component
         try {
             $response = Http::get($this->url);
         } catch (\Exception) {
-            $this->feedErrors[] = 'Couldn't connect to that URL.';
+            $this->feedErrors[] = 'Couldn’t connect to that URL.';
 
             return null;
         }
@@ -47,7 +47,7 @@ class Home extends Component
         $contentType = $response->header('content-type');
 
         if (! Feed::isValidResponseType($contentType)) {
-            $this->feedErrors[] = 'That URL doesn't return a JSON or RSS feed.';
+            $this->feedErrors[] = 'That URL doesn’t return a JSON or RSS feed.';
 
             return null;
         }
