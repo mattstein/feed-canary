@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Mail\ConfirmFeed;
 use App\Models\Feed;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -16,7 +15,17 @@ class Home extends Component
 
     public ?string $email = null;
 
-    public ?Collection $feedErrors = null;
+    public array $feedErrors = [];
+
+    public function updatedUrl($value)
+    {
+        $this->url = is_array($value) ? ($value[0] ?? null) : $value;
+    }
+
+    public function updatedEmail($value)
+    {
+        $this->email = is_array($value) ? ($value[0] ?? null) : $value;
+    }
 
     public function create()
     {
@@ -25,12 +34,12 @@ class Home extends Component
             'email' => 'required|email',
         ]);
 
-        $this->feedErrors = collect([]);
+        $this->feedErrors = [];
 
         try {
             $response = Http::get($this->url);
         } catch (\Exception) {
-            $this->feedErrors->push('Couldn’t connect to that URL.');
+            $this->feedErrors[] = 'Couldn't connect to that URL.';
 
             return null;
         }
@@ -38,7 +47,7 @@ class Home extends Component
         $contentType = $response->header('content-type');
 
         if (! Feed::isValidResponseType($contentType)) {
-            $this->feedErrors->push('That URL doesn’t return a JSON or RSS feed.');
+            $this->feedErrors[] = 'That URL doesn't return a JSON or RSS feed.';
 
             return null;
         }

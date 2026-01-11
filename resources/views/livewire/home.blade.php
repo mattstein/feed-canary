@@ -12,7 +12,7 @@
 
   @if (! empty($feedErrors))
     <div class="form-error">
-      {{ $feedErrors->first() }}
+      {{ $feedErrors[0] ?? '' }}
     </div>
   @endif
 
