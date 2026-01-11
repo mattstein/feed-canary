@@ -60,7 +60,7 @@ class ManageFeed extends Component
             ->latest()
             ->limit(15)
             ->get()
-            ->map(fn($check) => [
+            ->map(fn ($check) => [
                 'type' => 'check',
                 'timestamp' => $check->created_at,
                 'is_valid' => $check->is_valid,
@@ -72,7 +72,7 @@ class ManageFeed extends Component
             ->latest()
             ->limit(15)
             ->get()
-            ->map(fn($failure) => [
+            ->map(fn ($failure) => [
                 'type' => 'connection_failure',
                 'timestamp' => $failure->created_at,
                 'is_valid' => false,
@@ -93,7 +93,7 @@ class ManageFeed extends Component
             }
 
             // Check if there's a corresponding Check with status 0 within 5 seconds
-            return !$merged->contains(function ($other) use ($item) {
+            return ! $merged->contains(function ($other) use ($item) {
                 return $other['type'] === 'check'
                     && $other['status'] === 0
                     && abs($other['timestamp']->diffInSeconds($item['timestamp'])) <= 5;
