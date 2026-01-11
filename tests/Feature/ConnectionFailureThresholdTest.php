@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\ConnectionFailure;
 use App\Models\Feed;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -10,7 +9,6 @@ use Illuminate\Support\Facades\Mail;
  * Ensures temporary network hiccups don't trigger notifications,
  * but persistent issues are properly surfaced to users.
  */
-
 it('does not send notification for connection failure within 23 hours', function () {
     Mail::fake();
 
