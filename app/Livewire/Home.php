@@ -11,11 +11,22 @@ use Livewire\Component;
 
 class Home extends Component
 {
-    public ?string $url = null;
+    public string|array|null $url = null;
 
-    public ?string $email = null;
+    public string|array|null $email = null;
 
     public array $feedErrors = [];
+
+    public function hydrate()
+    {
+        if (is_array($this->url)) {
+            $this->url = $this->url[0] ?? null;
+        }
+
+        if (is_array($this->email)) {
+            $this->email = $this->email[0] ?? null;
+        }
+    }
 
     public function updatedUrl($value)
     {
