@@ -209,8 +209,8 @@ it('sends fix email after connection failures resolve', function () {
 
     $sequence = Http::sequence();
 
-    // Three checks with two attempts each = six failures, then a success.
-    for ($i = 0; $i < 6; $i++) {
+    // Three failing checks, then a success.
+    for ($i = 0; $i < 3; $i++) {
         $sequence->pushFailedConnection();
     }
 

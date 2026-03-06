@@ -231,8 +231,8 @@ it('handles recovery after exceeding threshold', function () {
 
     $sequence = Http::sequence();
 
-    // Three checks: two failures, then success (6 failures + 1 success)
-    for ($i = 0; $i < 6; $i++) {
+    // Three checks fail, then one succeeds (3 failures + 1 success)
+    for ($i = 0; $i < 3; $i++) {
         $sequence->pushFailedConnection();
     }
 
@@ -283,17 +283,13 @@ it('handles feed that fails, recovers briefly, then fails again within threshold
     $sequence = Http::sequence();
 
     // First check: fail
-    for ($i = 0; $i < 3; $i++) {
-        $sequence->pushFailedConnection();
-    }
+    $sequence->pushFailedConnection();
 
     // Second check at 10 hours: success
     $sequence->push($validBody, 200, ['Content-Type' => 'application/rss+xml']);
 
     // Third check at 15 hours: fail again
-    for ($i = 0; $i < 3; $i++) {
-        $sequence->pushFailedConnection();
-    }
+    $sequence->pushFailedConnection();
 
     Http::fake([
         "{$feed->url}*" => $sequence,
