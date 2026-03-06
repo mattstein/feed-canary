@@ -124,7 +124,7 @@ class Feed extends Model
 
         try {
             $response = Http::withUserAgent(config('app.user_agent'))
-                ->retry(2, 250, fn ($e) => ! $e instanceof ConnectionException)
+                ->retry(2, 250, fn ($e) => ! $e instanceof ConnectionException, throw: false)
                 ->get($this->url);
         } catch (ConnectionException|RequestException|GuzzleRequestException $e) {
             $failure = new ConnectionFailure;
