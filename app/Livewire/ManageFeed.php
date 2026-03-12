@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Check;
 use App\Models\ConnectionFailure;
 use App\Models\Feed;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -84,7 +85,7 @@ class ManageFeed extends Component
                 'exceeded_threshold' => $failure->exceedsThreshold(),
             ]);
 
-        /** @var \Illuminate\Support\Collection<int, array<string, mixed>> $merged */
+        /** @var Collection<int, array<string, mixed>> $merged */
         $merged = collect($checks)
             ->concat($failures)
             ->sortByDesc('timestamp');
