@@ -1,5 +1,8 @@
 <?php
 
+use App\Mail\FeedConnectionFailed;
+use App\Mail\FeedFixed;
+use App\Models\Check;
 use App\Models\Feed;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -60,7 +63,7 @@ it('sends notification when exceeding 24-hour threshold', function () {
     $feed->refresh();
 
     expect($feed->status)->toBe(Feed::STATUS_FAILING);
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    Mail::assertSent(FeedConnectionFailed::class, 1);
 
     $feed->delete();
 });
@@ -150,7 +153,7 @@ it('handles multiple connection failures across threshold boundary', function ()
 
     expect($feed->connectionFailures()->count())->toBe(5);
     expect($feed->status)->toBe(Feed::STATUS_FAILING);
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    Mail::assertSent(FeedConnectionFailed::class, 1);
 
     $feed->delete();
 });
@@ -173,7 +176,7 @@ it('does not send duplicate notifications for persistent failures', function () 
     $feed->refresh();
 
     expect($feed->status)->toBe(Feed::STATUS_FAILING);
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    Mail::assertSent(FeedConnectionFailed::class, 1);
 
     // Continue failing for another day
     $this->travel(12)->hours();
@@ -183,7 +186,7 @@ it('does not send duplicate notifications for persistent failures', function () 
     $feed->check();
 
     // Should still only have sent one notification
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    Mail::assertSent(FeedConnectionFailed::class, 1);
 
     $feed->delete();
 });
@@ -217,7 +220,7 @@ it('respects custom connection failure threshold configuration', function () {
     $feed->refresh();
 
     expect($feed->status)->toBe(Feed::STATUS_FAILING);
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    Mail::assertSent(FeedConnectionFailed::class, 1);
 
     $feed->delete();
 });
@@ -254,7 +257,7 @@ it('handles recovery after exceeding threshold', function () {
     $feed->refresh();
 
     expect($feed->status)->toBe(Feed::STATUS_FAILING);
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    Mail::assertSent(FeedConnectionFailed::class, 1);
 
     // Travel a bit more and recover
     $this->travel(5)->minutes();
@@ -268,7 +271,7 @@ it('handles recovery after exceeding threshold', function () {
 
     // Feed should recover and send fixed notification
     expect($feed->status)->toBe(Feed::STATUS_HEALTHY);
-    Mail::assertSent(\App\Mail\FeedFixed::class, 1);
+    Mail::assertSent(FeedFixed::class, 1);
 
     $feed->delete();
 });
@@ -409,7 +412,7 @@ it('creates connection failure check record when threshold exceeded', function (
     expect($feed->checks()->count())->toBe($checksBeforeThreshold + 1);
 
     $latestCheck = $feed->latestCheck();
-    expect((int) $latestCheck->status)->toBe(\App\Models\Check::STATUS_CONNECTION_FAILURE);
+    expect((int) $latestCheck->status)->toBe(Check::STATUS_CONNECTION_FAILURE);
     expect($latestCheck->is_valid)->toBeFalse();
 
     $feed->delete();
@@ -435,7 +438,7 @@ it('tracks connection failure timestamps accurately', function () {
     $feed->check();
 
     $secondFailure = $feed->connectionFailures()->latest()->first();
-    expect($secondFailure->created_at->diffInHours($firstFailure->created_at))->toBeGreaterThanOrEqual(12);
+    expect(abs($secondFailure->created_at->diffInHours($firstFailure->created_at)))->toBeGreaterThanOrEqual(12);
 
     $feed->delete();
 });

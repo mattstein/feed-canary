@@ -22,7 +22,7 @@ class ConnectionFailure extends Model
         $latestCheck = $this->feed->latestCheck();
 
         if ($latestCheck) {
-            return $this->created_at->diffInSeconds($latestCheck->created_at) > $maxSeconds;
+            return abs($this->created_at->diffInSeconds($latestCheck->created_at)) > $maxSeconds;
         }
 
         // If we don’t have a check, use the oldest connection failure
@@ -31,7 +31,7 @@ class ConnectionFailure extends Model
             ->first();
 
         if ($oldestConnectionFailure) {
-            return $this->created_at->diffInSeconds($oldestConnectionFailure->created_at) > $maxSeconds;
+            return abs($this->created_at->diffInSeconds($oldestConnectionFailure->created_at)) > $maxSeconds;
         }
 
         return false;

@@ -6,7 +6,7 @@ use App\Models\ConnectionFailure;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ConnectionFailure>
+ * @extends Factory<ConnectionFailure>
  */
 class ConnectionFailureFactory extends Factory
 {

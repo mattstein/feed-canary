@@ -4,10 +4,13 @@ namespace App\Services\FeedValidator;
 
 use App\Models\Feed;
 use Fungku\MarkupValidator\FeedValidator as FeedMarkupValidator;
+use Fungku\MarkupValidator\W3CFeedValidator;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use JsonSchema\Validator;
 use Laminas\Feed\Exception\RuntimeException;
 use Laminas\Feed\Reader\Reader;
+use Sentry\State\Scope;
 
 class FeedValidator
 {
@@ -24,7 +27,7 @@ class FeedValidator
 
         // Ensure Sentry context includes feed identifiers during validation
         if (app()->bound('sentry')) {
-            app('sentry')->configureScope(function (\Sentry\State\Scope $scope) {
+            app('sentry')->configureScope(function (Scope $scope) {
                 $scope->setTag('feed_id', (string) $this->feed->id);
                 $scope->setTag('feed_url', (string) $this->feed->url);
             });
@@ -44,7 +47,7 @@ class FeedValidator
         $jsonSchemaObject = json_decode(file_get_contents($schemaDefinition));
         $data = json_decode($this->body);
 
-        $validator = new \JsonSchema\Validator;
+        $validator = new Validator;
         $validator->validate($data, $jsonSchemaObject);
 
         return $validator->isValid();
@@ -59,7 +62,7 @@ class FeedValidator
         }
 
         try {
-            return (new FeedMarkupValidator(new \Fungku\MarkupValidator\W3CFeedValidator))
+            return (new FeedMarkupValidator(new W3CFeedValidator))
                 ->validate($this->feed->url);
         } catch (\ErrorException $exception) {
             Log::debug('W3C validator had a problem');

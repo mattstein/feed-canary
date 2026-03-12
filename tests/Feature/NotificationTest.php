@@ -1,5 +1,8 @@
 <?php
 
+use App\Mail\FeedConnectionFailed;
+use App\Mail\FeedFailed;
+use App\Mail\FeedFixed;
 use App\Models\ConnectionFailure;
 use App\Models\Feed;
 use Illuminate\Support\Facades\Http;
@@ -27,7 +30,7 @@ it('sends email on new failure', function () {
     $this->assertEquals(Feed::STATUS_FAILING, $feed->status);
 
     // Should send failure email
-    Mail::assertSent(\App\Mail\FeedFailed::class);
+    Mail::assertSent(FeedFailed::class);
 
     $feed->delete();
 });
@@ -57,7 +60,7 @@ it('does not send email on repeat failure', function () {
     $this->assertEquals(Feed::STATUS_FAILING, $feed->status);
 
     // Make sure no email is sent
-    Mail::assertNotSent(\App\Mail\FeedFailed::class);
+    Mail::assertNotSent(FeedFailed::class);
 
     $feed->delete();
 });
@@ -100,7 +103,7 @@ it('sends email on new fix', function () {
     $this->assertEquals(Feed::STATUS_HEALTHY, $feed->status);
 
     // Make sure one email is sent
-    Mail::assertSent(\App\Mail\FeedFixed::class);
+    Mail::assertSent(FeedFixed::class);
 
     $feed->delete();
 });
@@ -195,7 +198,7 @@ it('sends email for repeated connection failures', function () {
     $feed->check();
 
     $this->assertEquals(3, $feed->connectionFailures()->count());
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    Mail::assertSent(FeedConnectionFailed::class, 1);
 
     $feed->delete();
 });
@@ -230,7 +233,7 @@ it('sends fix email after connection failures resolve', function () {
     $feed->check();
     $feed->refresh();
 
-    Mail::assertSent(\App\Mail\FeedConnectionFailed::class, 1);
+    Mail::assertSent(FeedConnectionFailed::class, 1);
     $this->assertEquals(Feed::STATUS_FAILING, $feed->status);
     $this->assertTrue($feed->hasFailingConnection());
 
@@ -246,7 +249,7 @@ it('sends fix email after connection failures resolve', function () {
     $this->assertFalse($feed->hasFailingConnection());
     $this->assertEquals(Feed::STATUS_HEALTHY, $feed->status);
 
-    Mail::assertSent(\App\Mail\FeedFixed::class, 1);
+    Mail::assertSent(FeedFixed::class, 1);
 
     $feed->delete();
 });
@@ -291,7 +294,7 @@ it('sends email for restored connection', function () {
     $this->assertEquals(Feed::STATUS_HEALTHY, $feed->status);
 
     // Make sure one email is sent
-    Mail::assertSent(\App\Mail\FeedFixed::class);
+    Mail::assertSent(FeedFixed::class);
 
     $feed->delete();
 });

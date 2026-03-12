@@ -41,7 +41,7 @@ class Status extends Component
                 $this->validatorDotOrgStatus = Http::timeout(5)
                     ->head('https://www.feedvalidator.org')
                     ->successful() ? 'up' : 'down';
-            } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            } catch (ConnectionException $e) {
                 $this->validatorDotOrgStatus = 'down';
             }
 

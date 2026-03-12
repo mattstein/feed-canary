@@ -1,5 +1,11 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\EventServiceProvider;
+use App\Providers\FeedValidatorProvider;
+use App\Providers\HorizonServiceProvider;
+use App\Providers\RouteServiceProvider;
+use App\Services\FeedValidator\FeedValidatorFacade;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,16 +31,15 @@ return [
         // 'store' => 'redis',
     ],
     'providers' => ServiceProvider::defaultProviders()->merge([
-        App\Providers\AppServiceProvider::class,
+        AppServiceProvider::class,
         // App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\HorizonServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        \MarcAndreAppel\BackblazeB2\BackblazeB2ServiceProvider::class,
-        \App\Providers\FeedValidatorProvider::class,
+        EventServiceProvider::class,
+        HorizonServiceProvider::class,
+        RouteServiceProvider::class,
+        FeedValidatorProvider::class,
     ])->toArray(),
     'aliases' => Facade::defaultAliases()->merge([
-        'FeedValidator' => \App\Services\FeedValidator\FeedValidatorFacade::class,
+        'FeedValidator' => FeedValidatorFacade::class,
     ])->toArray(),
 ];

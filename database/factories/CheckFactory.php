@@ -7,7 +7,7 @@ use App\Models\Feed;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<\App\Models\Check>
+ * @extends Factory<Check>
  */
 class CheckFactory extends Factory
 {

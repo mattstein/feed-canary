@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\Check;
+use App\Models\Feed;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -12,8 +17,8 @@
 */
 
 uses(
-    Tests\TestCase::class,
-    Illuminate\Foundation\Testing\RefreshDatabase::class,
+    TestCase::class,
+    RefreshDatabase::class,
 )->in('Feature');
 
 /*
@@ -50,7 +55,7 @@ function something()
 /**
  * Helper to create a backdated check for a feed with sensible defaults.
  */
-function makePastCheck(App\Models\Feed $feed, array $overrides = []): App\Models\Check
+function makePastCheck(Feed $feed, array $overrides = []): Check
 {
     $oneMinuteAgo = now()->subMinutes(1);
 
@@ -65,8 +70,8 @@ function makePastCheck(App\Models\Feed $feed, array $overrides = []): App\Models
 
     $state = array_merge($base, $overrides);
 
-    /** @var App\Models\Check $check */
-    $check = App\Models\Check::factory()
+    /** @var Check $check */
+    $check = Check::factory()
         ->for($feed, 'feed')
         ->state($state)
         ->create();

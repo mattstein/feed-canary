@@ -18,6 +18,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Sentry\State\Scope;
 
 /**
  * @property string $id
@@ -114,7 +115,7 @@ class Feed extends Model
         Log::debug('Checking '.$this->url);
         // Attach Sentry context so any exceptions include feed identifiers
         if (app()->bound('sentry')) {
-            app('sentry')->configureScope(function (\Sentry\State\Scope $scope) {
+            app('sentry')->configureScope(function (Scope $scope) {
                 $scope->setTag('feed_id', (string) $this->id);
                 $scope->setTag('feed_url', (string) $this->url);
             });

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Fungku\MarkupValidator\FeedValidator as FeedMarkupValidator;
+use Fungku\MarkupValidator\W3CFeedValidator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -51,7 +52,7 @@ class Validator extends Model
         }
 
         try {
-            return (new FeedMarkupValidator(new \Fungku\MarkupValidator\W3CFeedValidator))
+            return (new FeedMarkupValidator(new W3CFeedValidator))
                 ->validate($this->feed->url);
         } catch (\ErrorException $exception) {
             Log::debug('W3C validator had a problem');
