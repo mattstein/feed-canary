@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ConnectionFailure;
 use App\Models\Feed;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -88,6 +89,7 @@ class FeedStatus extends Command
                     }
                 } else {
                     // No successful check yet
+                    /** @var ConnectionFailure|null $oldestFailure */
                     $oldestFailure = $feed->connectionFailures()->oldest()->first();
                     if ($oldestFailure) {
                         $timeSinceFirst = Carbon::now()->diffInSeconds($oldestFailure->created_at);

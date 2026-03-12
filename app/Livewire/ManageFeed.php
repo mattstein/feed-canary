@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Models\Check;
+use App\Models\ConnectionFailure;
 use App\Models\Feed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -52,6 +54,8 @@ class ManageFeed extends Component
     /**
      * Get recent check history (up to 10 items) combining checks and connection failures.
      * Returns an array of items with 'type', 'timestamp', 'is_valid', and 'status' keys.
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getRecentCheckHistory(): array
     {
@@ -60,7 +64,7 @@ class ManageFeed extends Component
             ->latest()
             ->limit(15)
             ->get()
-            ->map(fn ($check) => [
+            ->map(fn (Check $check) => [
                 'type' => 'check',
                 'timestamp' => $check->created_at,
                 'is_valid' => $check->is_valid,
@@ -72,7 +76,7 @@ class ManageFeed extends Component
             ->latest()
             ->limit(15)
             ->get()
-            ->map(fn ($failure) => [
+            ->map(fn (ConnectionFailure $failure) => [
                 'type' => 'connection_failure',
                 'timestamp' => $failure->created_at,
                 'is_valid' => false,
@@ -80,20 +84,20 @@ class ManageFeed extends Component
                 'exceeded_threshold' => $failure->exceedsThreshold(),
             ]);
 
-        // Merge and sort by timestamp descending
+        /** @var \Illuminate\Support\Collection<int, array<string, mixed>> $merged */
         $merged = collect($checks)
             ->concat($failures)
             ->sortByDesc('timestamp');
 
         // Remove duplicate connection failures that have a corresponding Check record
         // (when a connection failure exceeds threshold, both records are created)
-        $deduplicated = $merged->filter(function ($item, $index) use ($merged) {
+        $deduplicated = $merged->filter(function (array $item) use ($merged) {
             if ($item['type'] !== 'connection_failure') {
                 return true; // Keep all checks
             }
 
             // Check if there's a corresponding Check with status 0 within 5 seconds
-            return ! $merged->contains(function ($other) use ($item) {
+            return ! $merged->contains(function (array $other) use ($item) {
                 return $other['type'] === 'check'
                     && $other['status'] === 0
                     && abs($other['timestamp']->diffInSeconds($item['timestamp'])) <= 5;

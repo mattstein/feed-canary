@@ -19,9 +19,9 @@ class UnsendTransport extends AbstractTransport
     {
         // @phpstan-ignore-next-line
         $email = MessageConverter::toEmail($message->getOriginalMessage());
-        $apiKey = env('UNSEND_API_KEY');
+        $apiKey = config('mail.mailers.unsend.api_key');
         $baseUrl = Uri::to('/')
-            ->withHost(env('UNSEND_DOMAIN'))
+            ->withHost(config('mail.mailers.unsend.domain'))
             ->withScheme('https')
             ->value();
 

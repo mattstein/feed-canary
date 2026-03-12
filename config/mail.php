@@ -89,6 +89,8 @@ return [
 
         'unsend' => [
             'transport' => 'unsend',
+            'api_key' => env('UNSEND_API_KEY'),
+            'domain' => env('UNSEND_DOMAIN'),
         ],
 
         'failover' => [

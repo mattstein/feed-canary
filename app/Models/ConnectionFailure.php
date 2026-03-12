@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $feed_id
  * @property string $url
  * @property string $message
+ * @property-read Feed $feed
+ * @property-read \Illuminate\Support\Carbon $created_at
  */
 class ConnectionFailure extends Model
 {
@@ -37,6 +39,9 @@ class ConnectionFailure extends Model
         return false;
     }
 
+    /**
+     * @return BelongsTo<Feed, $this>
+     */
     public function feed(): BelongsTo
     {
         return $this->belongsTo(Feed::class);

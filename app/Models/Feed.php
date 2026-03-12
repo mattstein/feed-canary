@@ -261,6 +261,8 @@ class Feed extends Model
 
     /**
      * Returns checks against the feed.
+     *
+     * @return HasMany<Check, $this>
      */
     public function checks(): HasMany
     {
@@ -272,6 +274,7 @@ class Feed extends Model
      */
     public function latestCheck(): ?Check
     {
+        /** @var Check|null */
         return $this->checks()
             ->latest()
             ->first();
@@ -279,6 +282,8 @@ class Feed extends Model
 
     /**
      * Returns connection failures encountered when attempting to check the feed.
+     *
+     * @return HasMany<ConnectionFailure, $this>
      */
     public function connectionFailures(): HasMany
     {
@@ -290,6 +295,7 @@ class Feed extends Model
      */
     public function latestConnectionFailure(): ?ConnectionFailure
     {
+        /** @var ConnectionFailure|null */
         return $this->connectionFailures()
             ->latest()
             ->first();
@@ -300,6 +306,7 @@ class Feed extends Model
      */
     public function previousCheck(): ?Check
     {
+        /** @var Check|null */
         return $this->checks()
             ->latest()
             ->skip(1)
