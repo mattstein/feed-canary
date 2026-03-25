@@ -59,4 +59,13 @@ jobs:
       - name: Run migrations
         run: php artisan migrate
       - name: Run tests
-        run: php artisan test
+        run: |
+          php artisan test | tee /tmp/test-output.txt
+          exit ${PIPESTATUS[0]}
+      - name: Summarize test results
+        if: success()
+        run: |
+          echo "## Tests passed" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          grep -E "^  Tests:|^  Duration:" /tmp/test-output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
