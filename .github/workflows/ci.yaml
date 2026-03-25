@@ -67,5 +67,5 @@ jobs:
         run: |
           echo "## Tests passed" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          grep -E "^  Tests:|^  Duration:" /tmp/test-output.txt >> $GITHUB_STEP_SUMMARY
+          grep -E "^  Tests:|^  Duration:" /tmp/test-output.txt | sed 's/^  //' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
