@@ -15,9 +15,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
-          tools: composer:v2
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-ansi --no-progress
       - name: Run PHPStan
@@ -30,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql:8.0-slim
         env:
           MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: laravel
@@ -47,9 +52,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
-          tools: composer:v2
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-ansi --no-progress
       - name: Copy .env
