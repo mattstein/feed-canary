@@ -1,5 +1,7 @@
 <?php
 
+use Livewire\Mechanisms\HandleComponents\CorruptComponentPayloadException;
+
 /**
  * Sentry Laravel SDK configuration file.
  *
@@ -34,7 +36,7 @@ return [
     // snapshots with tampered memo fields (e.g. release: 'a-a-a'), which Livewire correctly
     // rejects. These are not application errors.
     'ignore_exceptions' => [
-        \Livewire\Mechanisms\HandleComponents\CorruptComponentPayloadException::class,
+        CorruptComponentPayloadException::class,
     ],
 
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#ignore-transactions
