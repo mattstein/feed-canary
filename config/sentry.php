@@ -30,7 +30,12 @@ return [
     'send_default_pii' => env('SENTRY_SEND_DEFAULT_PII', false),
 
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#ignore-exceptions
-    // 'ignore_exceptions' => [],
+    // CorruptComponentPayloadException is intentionally ignored: bots send crafted Livewire
+    // snapshots with tampered memo fields (e.g. release: 'a-a-a'), which Livewire correctly
+    // rejects. These are not application errors.
+    'ignore_exceptions' => [
+        \Livewire\Mechanisms\HandleComponents\CorruptComponentPayloadException::class,
+    ],
 
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#ignore-transactions
     // 'ignore_transactions' => [],
