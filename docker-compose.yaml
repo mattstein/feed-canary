@@ -1,18 +1,13 @@
+# Worker stack: scheduler and Horizon.
+#
+# The web tier (Octane / FrankenPHP) is intentionally NOT here—it’s deployed as
+# a standalone Coolify “Application” resource built from .docker/octane/Dockerfile
+# so it gets health-gated rolling (zero-downtime) deploys, which Coolify does not
+# perform for docker-compose resources. These workers don’t need zero-downtime.
+#
+# MySQL and Redis are managed separately as Coolify resources; these services
+# reach them over Coolify’s predefined network.
 services:
-  app:
-    environment:
-      AUTORUN_ENABLED: true
-    build:
-      context: .
-      dockerfile: ./.docker/web/Dockerfile
-    volumes:
-      - './storage:/var/www/html/storage'
-    healthcheck:
-      test: curl --fail http://localhost:8080/healthcheck || exit 1
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
   scheduler:
     build:
       context: .
@@ -22,19 +17,6 @@ services:
       - ./storage:/var/www/html/storage
     healthcheck:
       test: ["CMD-SHELL", "ps aux | grep 'artisan schedule:work' | grep -v grep || exit 1"]
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-  queue:
-    build:
-      context: .
-      dockerfile: ./.docker/cli/Dockerfile
-    command: ["php", "artisan", "queue:work", "--tries=3"]
-    volumes:
-      - ./storage:/var/www/html/storage
-    healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep 'artisan queue:work' | grep -v grep || exit 1"]
       interval: 10s
       retries: 5
       start_period: 10s
@@ -54,17 +36,3 @@ services:
       retries: 5
       start_period: 10s
       timeout: 10s
-  octane:
-    build:
-      context: .
-      dockerfile: ./.docker/octane/Dockerfile
-    volumes:
-      - ./storage:/var/www/html/storage
-    healthcheck:
-      test: ["CMD-SHELL", "php artisan octane:status | grep 'server is running'"]
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 10s
-    ports:
-      - 8000:8000
