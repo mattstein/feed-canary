@@ -1,13 +1,7 @@
 <?php
 
-use App\Providers\AppServiceProvider;
-use App\Providers\EventServiceProvider;
-use App\Providers\FeedValidatorProvider;
-use App\Providers\HorizonServiceProvider;
-use App\Providers\RouteServiceProvider;
 use App\Services\FeedValidator\FeedValidatorFacade;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\ServiceProvider;
 
 return [
     'name' => env('APP_NAME', 'Feed Canary'),
@@ -30,15 +24,6 @@ return [
         'driver' => 'file',
         // 'store' => 'redis',
     ],
-    'providers' => ServiceProvider::defaultProviders()->merge([
-        AppServiceProvider::class,
-        // App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        EventServiceProvider::class,
-        HorizonServiceProvider::class,
-        RouteServiceProvider::class,
-        FeedValidatorProvider::class,
-    ])->toArray(),
     'aliases' => Facade::defaultAliases()->merge([
         'FeedValidator' => FeedValidatorFacade::class,
     ])->toArray(),
