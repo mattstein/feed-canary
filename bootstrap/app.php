@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SetCloudflareClientIp;
 use App\Http\Middleware\ThrottleLivewireUpdates;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Restore the real client IP from Cloudflare's CF-Connecting-IP header
+        // before anything reads it (runs first in the stack).
+        $middleware->prepend(SetCloudflareClientIp::class);
+
         $middleware->trustProxies(
             // Coolify’s reverse proxy is the only ingress to this container and
             // reaches it from a Docker-assigned IP that isn’t fixed, so trust all

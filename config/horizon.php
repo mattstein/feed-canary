@@ -213,8 +213,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Custom Configuration
+    | Horizon Allowed Networks
     |--------------------------------------------------------------------------
+    |
+    | A comma-separated list of CIDR ranges whose clients are authorized to
+    | view the Horizon dashboard. Defaults to the Tailscale CGNAT range so
+    | the dashboard is reachable over the tailnet rather than the public
+    | internet.
+    |
     */
-    'allowedAddresses' => env('REMOTE_ADDRESSES', '[""]'),
+    'allowed_networks' => env('HORIZON_ALLOWED_NETWORKS', '100.64.0.0/10'),
 ];

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\Horizon;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
+use Symfony\Component\HttpFoundation\IpUtils;
 
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
@@ -23,17 +24,14 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     /**
      * Register the Horizon gate.
      *
-     * This gate determines who can access Horizon in non-local environments.
+     * Access is granted only to clients whose IP falls within an allowed network
+     * (horizon.allowed_networks) — by default the Tailscale CGNAT range, so the
+     * dashboard is reachable over the tailnet rather than the public internet.
      */
     protected function gate(): void
     {
         Gate::define('viewHorizon', static function ($user = null) {
-
-            if (! $allowed_addresses = json_decode(config('horizon.allowedAddresses'))) {
-                return false;
-            }
-
-            return in_array(request()->getClientIp(), $allowed_addresses);
+            return IpUtils::checkIp(request()->getClientIp() ?? '', config('horizon.allowed_networks'));
         });
     }
 }
