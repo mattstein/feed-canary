@@ -33,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'password_confirmation',
         ]);
 
-        $exceptions->reportable(function (\Throwable $e): void {
+        $exceptions->reportable(function (Throwable $e): void {
             if (app()->bound('sentry')) {
                 app('sentry')->captureException($e);
             }
