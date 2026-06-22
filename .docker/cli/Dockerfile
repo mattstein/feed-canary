@@ -1,4 +1,4 @@
-FROM serversideup/php:8.4-cli
+FROM serversideup/php:8.5-cli
 
 ENV PHP_OPCACHE_ENABLE=1
 
