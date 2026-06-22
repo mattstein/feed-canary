@@ -14,6 +14,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.5
+          extensions: pdo_pgsql
       - name: Checkout
         uses: actions/checkout@v6
       - name: Cache Composer dependencies
@@ -33,15 +34,16 @@ jobs:
     needs: phpstan
     runs-on: ubuntu-latest
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres:16
         env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: laravel
+          POSTGRES_DB: laravel
+          POSTGRES_USER: laravel
+          POSTGRES_PASSWORD: password
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd "mysqladmin ping"
+          --health-cmd "pg_isready -U laravel"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
@@ -50,6 +52,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.5
+          extensions: pdo_pgsql
       - name: Checkout
         uses: actions/checkout@v6
       - name: Cache Composer dependencies
