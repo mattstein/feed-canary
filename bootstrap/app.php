@@ -14,7 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(
-            at: ['127.0.0.1', '172.19.0.2'],
+            // Coolify’s reverse proxy is the only ingress to this container and
+            // reaches it from a Docker-assigned IP that isn’t fixed, so trust all
+            // proxies and read the real client IP from X-Forwarded-For.
+            at: '*',
             headers: Request::HEADER_X_FORWARDED_FOR
                 | Request::HEADER_X_FORWARDED_HOST
                 | Request::HEADER_X_FORWARDED_PORT
