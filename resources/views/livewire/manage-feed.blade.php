@@ -94,11 +94,11 @@
               $diffInDays = $timestamp->diffInDays($now);
 
               if ($diffInMinutes < 60) {
-                $relativeTime = $diffInMinutes . ' minute' . ($diffInMinutes !== 1 ? 's' : '') . ' ago';
+                $relativeTime = (int) $diffInMinutes . ' minute' . ((int) $diffInMinutes !== 1 ? 's' : '') . ' ago';
               } elseif ($diffInHours < 24) {
-                $relativeTime = $diffInHours . ' hour' . ($diffInHours !== 1 ? 's' : '') . ' ago';
+                $relativeTime = (int) $diffInHours . ' hour' . ((int) $diffInHours !== 1 ? 's' : '') . ' ago';
               } else {
-                $relativeTime = $diffInDays . ' day' . ($diffInDays !== 1 ? 's' : '') . ' ago';
+                $relativeTime = (int) $diffInDays . ' day' . ((int) $diffInDays !== 1 ? 's' : '') . ' ago';
               }
 
               // Format actual time with timezone
