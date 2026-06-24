@@ -1,21 +1,32 @@
-FROM dunglas/frankenphp:1-php8.5
+FROM serversideup/php:8.5-frankenphp
 
-# For Composer
-RUN apt-get update
-RUN apt-get install -y zip unzip git
+ENV PHP_OPCACHE_ENABLE=1
+ENV AUTORUN_ENABLED=true
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+USER root
 
-RUN install-php-extensions bcmath gd imagick intl opcache pcntl pdo_pgsql redis zip
+RUN install-php-extensions bcmath gd imagick intl pcntl pdo_pgsql redis
 
-RUN curl -sL https://deb.nodesource.com/setup_22.x | bash -
-RUN apt-get install -y nodejs
+RUN apt-get update && \
+    apt-get install -y zip unzip git && \
+    curl -sL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY . /app
+WORKDIR /var/www/html
 
-RUN composer install --prefer-dist --no-interaction --optimize-autoloader --no-dev
+COPY --chown=www-data:www-data composer.json composer.lock package*.json ./
 
-RUN npm install
+USER www-data
+
+RUN --mount=type=cache,target=/root/.composer \
+    composer install --prefer-dist --no-interaction --optimize-autoloader --no-dev
+
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline
+
+COPY --chown=www-data:www-data . /var/www/html
+
 RUN npm run build
 
-ENTRYPOINT ["php", "artisan", "octane:frankenphp"]
+ENV AUTORUN_LARAVEL_MIGRATION=true
