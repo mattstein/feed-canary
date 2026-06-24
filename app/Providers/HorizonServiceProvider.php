@@ -31,7 +31,9 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewHorizon', static function ($user = null) {
-            return IpUtils::checkIp(request()->getClientIp() ?? '', config('horizon.allowed_networks'));
+            $networks = array_filter(array_map('trim', explode(',', (string) config('horizon.allowed_networks'))));
+
+            return IpUtils::checkIp(request()->getClientIp() ?? '', $networks);
         });
     }
 }
