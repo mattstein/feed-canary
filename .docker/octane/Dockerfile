@@ -5,7 +5,7 @@ ENV AUTORUN_ENABLED=true
 
 USER root
 
-RUN install-php-extensions bcmath gd imagick intl pcntl pdo_pgsql redis
+RUN install-php-extensions pcntl pdo_pgsql redis
 
 RUN apt-get update && \
     apt-get install -y zip unzip git && \
