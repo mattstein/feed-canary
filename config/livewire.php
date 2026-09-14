@@ -30,15 +30,15 @@ return [
 
     /*
     |---------------------------------------------------------------------------
-    | Layout
+    | Page Layout
     |---------------------------------------------------------------------------
-    | The view that will be used as the layout when rendering a single component
-    | as an entire page via `Route::get('/post/create', CreatePost::class);`.
-    | In this case, the view returned by CreatePost will render into $slot.
+    | The view that will be used as the layout when rendering a single component as
+    | an entire page via `Route::livewire('/post/create', 'pages::create-post')`.
+    | In this case, the content of pages::create-post will render into $slot.
     |
     */
 
-    'layout' => 'components.layout',
+    'component_layout' => 'components.layout',
 
     /*
     |---------------------------------------------------------------------------
@@ -50,7 +50,7 @@ return [
     |
     */
 
-    'lazy_placeholder' => null,
+    'component_placeholder' => null,
 
     /*
     |---------------------------------------------------------------------------

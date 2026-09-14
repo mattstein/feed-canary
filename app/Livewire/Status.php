@@ -51,36 +51,22 @@ class Status extends Component
 
     public function getStatusEmoji($status): string
     {
-        if ($status === null) {
-            return '⏳';
-        }
-
-        if ($status === 'up') {
-            return '✅';
-        }
-
-        if ($status === 'down') {
-            return '‼️';
-        }
-
-        return '🤷';
+        return match ($status) {
+            null => '⏳',
+            'up' => '✅',
+            'down' => '‼️',
+            default => '🤷',
+        };
     }
 
     public function getStatusDescription($status): string
     {
-        if ($status === null) {
-            return '…';
-        }
-
-        if ($status === 'up') {
-            return 'seems fine.';
-        }
-
-        if ($status === 'down') {
-            return 'may be down!';
-        }
-
-        return '';
+        return match ($status) {
+            null => '…',
+            'up' => 'seems fine.',
+            'down' => 'may be down!',
+            default => '',
+        };
     }
 
     #[Title('Status')]
