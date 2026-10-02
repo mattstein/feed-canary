@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'unsend'),
+    'default' => env('MAIL_MAILER', 'usesend'),
 
     /*
     |--------------------------------------------------------------------------
@@ -87,10 +87,8 @@ return [
             'transport' => 'resend',
         ],
 
-        'unsend' => [
-            'transport' => 'unsend',
-            'api_key' => env('UNSEND_API_KEY'),
-            'domain' => env('UNSEND_DOMAIN'),
+        'usesend' => [
+            'transport' => 'usesend',
         ],
 
         'failover' => [

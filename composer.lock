@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3657b185dca863089325b838667f9da6",
+    "content-hash": "c6a046680b6ad631b60b89e26c31b4eb",
     "packages": [
         {
             "name": "brick/math",
@@ -2926,6 +2926,75 @@
                 }
             ],
             "time": "2026-09-07T16:02:43+00:00"
+        },
+        {
+            "name": "mattstein/usesend-laravel",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mattstein/usesend-laravel.git",
+                "reference": "2eeb457e47931b02e1c95ed83238848d31458467"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mattstein/usesend-laravel/zipball/2eeb457e47931b02e1c95ed83238848d31458467",
+                "reference": "2eeb457e47931b02e1c95ed83238848d31458467",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/http": "^12.60|^13.10",
+                "illuminate/mail": "^12.60|^13.10",
+                "illuminate/support": "^12.60|^13.10",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.14",
+                "orchestra/testbench": "^10.7|^11.0",
+                "pestphp/pest": "^3.0|^4.0",
+                "pestphp/pest-plugin-laravel": "^3.0|^4.0",
+                "phpstan/phpstan": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MattStein\\UseSend\\UseSendServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MattStein\\UseSend\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Stein",
+                    "email": "m@ttste.in",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel mail transport for useSend: send transactional email through the useSend API.",
+            "homepage": "https://github.com/mattstein/usesend-laravel",
+            "keywords": [
+                "laravel",
+                "mail",
+                "mailer",
+                "mattstein",
+                "transactional-email",
+                "transport",
+                "usesend"
+            ],
+            "support": {
+                "issues": "https://github.com/mattstein/usesend-laravel/issues",
+                "source": "https://github.com/mattstein/usesend-laravel/tree/v0.1.0"
+            },
+            "time": "2026-10-02T16:47:10+00:00"
         },
         {
             "name": "monolog/monolog",

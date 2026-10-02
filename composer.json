@@ -16,6 +16,7 @@
     "laravel/octane": "^2.12",
     "laravel/tinker": "^3.0",
     "livewire/livewire": "^4.0",
+    "mattstein/usesend-laravel": "^0.1",
     "railsware/mailtrap-php": "^1.9",
     "resend/resend-laravel": "^1.0",
     "sentry/sentry-laravel": "^4.1",
