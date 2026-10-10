@@ -31,9 +31,15 @@ class ThrottleLivewireUpdates
         return $next($request);
     }
 
+    /**
+     * Match by route name rather than path: Livewire 4 prefixes its endpoints
+     * with a hash of APP_KEY (`/livewire-{hash}/update`), and custom update
+     * routes keep a name ending in `livewire.update`. This middleware sits in
+     * the `web` group, so the route has already been resolved here.
+     */
     private function isLivewireUpdate(Request $request): bool
     {
-        return $request->is('livewire/update')
+        return $request->routeIs('*livewire.update')
             && $request->isMethod('POST')
             && $request->hasHeader('X-Livewire');
     }
