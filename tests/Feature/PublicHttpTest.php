@@ -4,7 +4,8 @@ use App\Livewire\Home;
 use App\Models\Feed;
 use App\Services\PublicHttp;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\Events\ConnectionFailed;
+use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 
 /*
@@ -13,10 +14,46 @@ use Livewire\Livewire;
 |--------------------------------------------------------------------------
 |
 | These make real connections (no Http::fake), since the guard lives in
-| curl's connection phase. Loopback serves a 200 inside the test
-| environment, so a blocked request proves the guard, not a dead port.
+| curl's connection phase and only runs once a TCP connection succeeds.
+| Each test opens its own listening socket on an ephemeral loopback port
+| so that holds in any environment, and asserts on curl's "aborted by
+| pre-request callback" error: a plain "connection refused" would be a
+| ConnectionException too, and would pass with the guard removed.
 |
 */
+
+const BLOCKED_BY_GUARD = 'aborted by pre-request callback';
+
+/**
+ * Listen on an ephemeral port. The kernel completes the TCP handshake
+ * from the backlog, so nothing needs to accept() for curl to connect.
+ *
+ * @return array{0: resource, 1: int}|null
+ */
+function loopbackListener(string $host = '127.0.0.1'): ?array
+{
+    $server = @stream_socket_server("tcp://{$host}:0");
+
+    if ($server === false) {
+        return null;
+    }
+
+    $name = (string) stream_socket_get_name($server, false);
+
+    return [$server, (int) substr($name, strrpos($name, ':') + 1)];
+}
+
+beforeEach(function () {
+    $listener = loopbackListener();
+
+    expect($listener)->not->toBeNull();
+
+    [$this->listener, $this->port] = $listener;
+});
+
+afterEach(function () {
+    fclose($this->listener);
+});
 
 it('classifies public and non-public addresses', function (string $ip, bool $public) {
     expect(PublicHttp::isPublicIp($ip))->toBe($public);
@@ -39,30 +76,48 @@ it('classifies public and non-public addresses', function (string $ip, bool $pub
     ['not-an-ip', false],
 ]);
 
-it('can reach loopback without the guard', function () {
-    expect(Http::get('http://127.0.0.1/')->status())->toBe(200);
-});
-
-it('refuses to connect to loopback', function (string $url) {
-    PublicHttp::client()->get($url);
+it('refuses to send to a loopback listener', function (string $host) {
+    PublicHttp::client()->get("http://{$host}:{$this->port}/");
 })->with([
-    'http://127.0.0.1/',
-    'http://localhost/',
-    'http://[::1]/',
-    'http://2130706433/', // 127.0.0.1 as a decimal integer
-])->throws(ConnectionException::class);
+    '127.0.0.1',
+    'localhost',
+    '2130706433', // 127.0.0.1 as a decimal integer
+])->throws(ConnectionException::class, BLOCKED_BY_GUARD);
+
+it('refuses to send to an IPv6 loopback listener', function () {
+    $listener = loopbackListener('[::1]');
+
+    if ($listener === null) {
+        $this->markTestSkipped('IPv6 loopback is unavailable.');
+    }
+
+    [$server, $port] = $listener;
+
+    try {
+        PublicHttp::client()->get("http://[::1]:{$port}/");
+    } finally {
+        fclose($server);
+    }
+})->throws(ConnectionException::class, BLOCKED_BY_GUARD);
 
 it('refuses non-HTTP schemes', function () {
     PublicHttp::client()->get('file:///etc/passwd');
-})->throws(ConnectionException::class);
+})->throws(ConnectionException::class, "scheme 'file' is not supported");
 
 it('rejects internal URLs when creating a feed', function () {
+    Event::fake([ConnectionFailed::class]);
+
     Livewire::test(Home::class)
-        ->set('url', 'http://127.0.0.1/')
+        ->set('url', "http://127.0.0.1:{$this->port}/")
         ->set('email', 'test@example.com')
         ->call('create')
         ->assertNoRedirect()
         ->assertSet('feedErrors', ['Couldn’t connect to that URL.']);
+
+    Event::assertDispatched(
+        ConnectionFailed::class,
+        fn (ConnectionFailed $event) => str_contains($event->exception->getMessage(), BLOCKED_BY_GUARD),
+    );
 
     expect(Feed::count())->toBe(0);
 });
@@ -76,9 +131,9 @@ it('rejects non-HTTP URLs when creating a feed', function () {
 });
 
 it('records a connection failure when a stored feed points at an internal address', function () {
-    $feed = Feed::factory()->create(['url' => 'http://127.0.0.1/']);
+    $feed = Feed::factory()->create(['url' => "http://127.0.0.1:{$this->port}/"]);
 
     expect($feed->check())->toBeFalse()
-        ->and($feed->connectionFailures()->count())->toBe(1)
-        ->and($feed->checks()->count())->toBe(0);
+        ->and($feed->checks()->count())->toBe(0)
+        ->and($feed->connectionFailures()->sole()->message)->toContain(BLOCKED_BY_GUARD);
 });
