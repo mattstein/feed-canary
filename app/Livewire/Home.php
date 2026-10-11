@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use App\Mail\ConfirmFeed;
 use App\Models\Feed;
-use Illuminate\Support\Facades\Http;
+use App\Services\PublicHttp;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -41,14 +41,14 @@ class Home extends Component
     public function create()
     {
         $this->validate([
-            'url' => 'required|url',
+            'url' => 'required|url:http,https',
             'email' => 'required|email',
         ]);
 
         $this->feedErrors = [];
 
         try {
-            $response = Http::get($this->url);
+            $response = PublicHttp::client()->get($this->url);
         } catch (\Exception) {
             $this->feedErrors[] = 'Couldn’t connect to that URL.';
 

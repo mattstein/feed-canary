@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Mail\FeedConnectionFailed;
 use App\Mail\FeedFailed;
 use App\Mail\FeedFixed;
+use App\Services\PublicHttp;
 use Carbon\Carbon;
 use FeedValidator;
 use GuzzleHttp\Exception\RequestException as GuzzleRequestException;
@@ -15,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Sentry\State\Scope;
@@ -124,7 +124,8 @@ class Feed extends Model
         $this->last_checked = $now;
 
         try {
-            $response = Http::withUserAgent(config('app.user_agent'))
+            $response = PublicHttp::client()
+                ->withUserAgent(config('app.user_agent'))
                 ->retry(2, 250, fn ($e) => ! $e instanceof ConnectionException, throw: false)
                 ->get($this->url);
         } catch (ConnectionException|RequestException|GuzzleRequestException $e) {
