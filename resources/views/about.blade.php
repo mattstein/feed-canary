@@ -2,7 +2,7 @@
   <div class="container">
     <h1>About Feed Canary</h1>
 
-    <p>Feed Canary watches your RSS and JSON feeds so you don’t have to. When something breaks, you hear about it.</p>
+    <p>Feed Canary watches your RSS and JSON feeds and tells you when something breaks.</p>
 
     <h2>How It Works</h2>
 
