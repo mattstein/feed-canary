@@ -8,6 +8,7 @@ use App\Livewire\Status;
 use App\Livewire\Updates;
 use Illuminate\Support\Facades\Route;
 
+Route::view('/about', 'about');
 Route::get('/sitemap.xml', SitemapController::class);
 Route::livewire('/', Home::class);
 Route::livewire('/status', Status::class);

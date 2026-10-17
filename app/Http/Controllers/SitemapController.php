@@ -17,6 +17,7 @@ class SitemapController extends Controller
      */
     protected array $pages = [
         '/',
+        '/about',
         '/status',
         '/updates',
     ];
