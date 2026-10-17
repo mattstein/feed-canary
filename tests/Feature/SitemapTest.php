@@ -42,6 +42,7 @@ it('serves a valid sitemap of the public pages', function () {
 
     expect(sitemapLocations($response))->toBe([
         url('/'),
+        url('/about'),
         url('/status'),
         url('/updates'),
     ]);
