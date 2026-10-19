@@ -14,7 +14,7 @@
         <p><strong>Confirm ownership.</strong> Feed Canary sends a one-time confirmation link to prove the email belongs to you.</p>
       </li>
       <li>
-        <p><strong>Relax.</strong> Your feed is checked every ten minutes. If it goes missing, returns invalid XML, or fails to connect for a full day, you get an email.</p>
+        <p><strong>Relax.</strong> Your feed is checked every ten minutes. If it goes missing, stops validating, or the connection fails for a full day, you get an email.</p>      </li>
       </li>
       <li>
         <p><strong>Fix and confirm.</strong> Once your feed is healthy again, Feed Canary notices and lets you know the problem is resolved.</p>
