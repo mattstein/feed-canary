@@ -13,16 +13,11 @@
 
 ```bash
 composer install --no-interaction --no-ansi --no-progress
-composer phpstan
-composer lint
 cp .github/.env.ci .env
 php artisan key:generate
 php artisan migrate
-php artisan test | tee /tmp/test-output.txt
-exit ${PIPESTATUS[0]}
+composer check
 ```
-
-The test step is not `composer check` here: the workflow pipes output through `tee` so it can grep the `Tests:` and `Duration:` lines for the job summary, and `artisan test` changes that output shape.
 
 ## Notes
 
