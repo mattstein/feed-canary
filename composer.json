@@ -49,7 +49,18 @@
   },
   "scripts": {
     "test": "./vendor/bin/pest",
-    "phpstan": "./vendor/bin/phpstan --memory-limit=2G",
+    "test:parallel": [
+      "@php artisan config:clear --ansi",
+      "@php artisan test --parallel"
+    ],
+    "lint": "pint --test",
+    "lint:fix": "pint",
+    "phpstan": "phpstan analyse --memory-limit=2G",
+    "check": [
+      "@composer lint",
+      "@composer phpstan",
+      "@composer test"
+    ],
     "pint-check": "./vendor/bin/pint --test",
     "pint-fix": "./vendor/bin/pint --repair",
     "post-autoload-dump": [

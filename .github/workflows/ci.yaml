@@ -26,9 +26,9 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-ansi --no-progress
       - name: Run PHPStan
-        run: ./vendor/bin/phpstan analyse --memory-limit=2G
+        run: composer phpstan
       - name: Run Pint
-        run: ./vendor/bin/pint --test
+        run: composer lint
   test:
     name: Pest Tests
     needs: phpstan
