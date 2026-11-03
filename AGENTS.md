@@ -39,10 +39,4 @@ ddev composer phpstan
 ddev composer check
 ```
 
-## Ground rules
 
-- **Everything runs through DDEV.** Host PHP, Composer, Pint and PHPStan are deliberately not installed. `ddev composer`, `ddev exec ./vendor/bin/...`, `ddev php artisan ...`.
-- **Never commit, push, amend, rebase or reset.** Matt handles all Git operations. Leave changes in the working tree and report what changed.
-- **Match CI exactly before claiming a change passes.** Running a narrower command than the workflow does is how rollouts break. The commands above are copied from the workflow files, not from habit.
-- Prefer `patch` over shell `sed`/`awk` for edits.
-- Additive migrations only, and `ENV AUTORUN_ENABLED=true` plus `ENV AUTORUN_LARAVEL_MIGRATION=true` must both be present in the Coolify Dockerfile. The migration flag alone silently no-ops.
