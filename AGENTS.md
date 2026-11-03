@@ -13,28 +13,36 @@
 
 ```bash
 composer install --no-interaction --no-ansi --no-progress
-./vendor/bin/phpstan analyse --memory-limit=2G
-./vendor/bin/pint --test
-cp .github/.env.ci .env && php artisan key:generate && php artisan migrate
-php artisan test
+composer phpstan
+composer lint
+cp .github/.env.ci .env
+php artisan key:generate
+php artisan migrate
+php artisan test | tee /tmp/test-output.txt
+exit ${PIPESTATUS[0]}
 ```
+
+The test step is not `composer check` here: the workflow pipes output through `tee` so it can grep the `Tests:` and `Duration:` lines for the job summary, and `artisan test` changes that output shape.
+
+## Notes
+
+- Tests run against sqlite `:memory:` with sync queue and array cache/mail — a green suite says nothing about Horizon or Redis behaviour.
+- Feed parsing is the product. `laminas-feed` edge cases are worth a regression test.
 
 ## Local commands
 
 ```bash
-ddev exec ./vendor/bin/phpstan analyse --memory-limit=2G
-ddev exec ./vendor/bin/pint --test
-ddev exec ./vendor/bin/pest
+ddev composer test
+ddev composer lint
+ddev composer lint:fix
+ddev composer phpstan
+ddev composer check
 ```
-
-## Notes
-- Tests run against sqlite `:memory:` with sync queue and array cache/mail — a green suite says nothing about Horizon or Redis behaviour.
-- Feed parsing is the product. `laminas-feed` edge cases are worth a regression test.
 
 ## Ground rules
 
-- **Everything runs through DDEV.** Host PHP, composer, pint and phpstan are deliberately not installed. `ddev composer`, `ddev exec ./vendor/bin/...`, `ddev php artisan ...`.
-- **Never commit, push, amend, rebase or reset.** Matt handles all git operations. Leave changes in the working tree and report what changed.
-- **Match CI exactly before claiming a change passes.** Running a narrower command than the workflow does is how rollouts break. The commands below are copied from the workflow files, not from habit.
+- **Everything runs through DDEV.** Host PHP, Composer, Pint and PHPStan are deliberately not installed. `ddev composer`, `ddev exec ./vendor/bin/...`, `ddev php artisan ...`.
+- **Never commit, push, amend, rebase or reset.** Matt handles all Git operations. Leave changes in the working tree and report what changed.
+- **Match CI exactly before claiming a change passes.** Running a narrower command than the workflow does is how rollouts break. The commands above are copied from the workflow files, not from habit.
 - Prefer `patch` over shell `sed`/`awk` for edits.
-- Additive migrations only, and `ENV AUTORUN_ENABLED=true` plus `ENV AUTORUN_LARAVEL_MIGRATION=true` must both be present in the Coolify Dockerfile — the migration flag alone silently no-ops.
+- Additive migrations only, and `ENV AUTORUN_ENABLED=true` plus `ENV AUTORUN_LARAVEL_MIGRATION=true` must both be present in the Coolify Dockerfile. The migration flag alone silently no-ops.
