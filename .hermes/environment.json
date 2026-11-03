@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "recipe": {
+    "name": "feed-canary (Laravel 13 + Horizon, DDEV)",
+    "kind": "laravel",
+    "bootstrap": ["ddev start"],
+    "build": [],
+    "test": ["ddev composer check"],
+    "start": null,
+    "port": null,
+    "readinessPath": "/",
+    "evidence": [
+      "artisan + composer.json present; laravel/framework ^13.0, php ^8.5",
+      "DDEV config: PostgreSQL, host-routed HTTPS",
+      "build is empty on purpose: the workflow never builds assets, it goes from composer install straight to the gates",
+      "All commands run through DDEV; host php and composer are deliberately absent",
+      "start/port deliberately null: DDEV serves host-routed HTTPS via a router, so a plain-HTTP probe against 127.0.0.1 would record a false failure"
+    ]
+  },
+  "updatedAt": "2026-11-03T20:40:00+00:00"
+}
