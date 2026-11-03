@@ -61,8 +61,6 @@
       "@composer phpstan",
       "@composer test"
     ],
-    "pint-check": "./vendor/bin/pint --test",
-    "pint-fix": "./vendor/bin/pint --repair",
     "post-autoload-dump": [
       "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
       "@php artisan package:discover --ansi"
