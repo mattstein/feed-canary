@@ -15,6 +15,7 @@ services:
     command: [ "php", "artisan", "schedule:work" ]
     volumes:
       - ./storage:/var/www/html/storage
+      - ./storage/worker-logs:/var/www/html/storage/logs
     healthcheck:
       test: ["CMD-SHELL", "ps aux | grep 'artisan schedule:work' | grep -v grep || exit 1"]
       interval: 10s
@@ -30,6 +31,7 @@ services:
     command: [ "php", "artisan", "horizon" ]
     volumes:
       - ./storage:/var/www/html/storage
+      - ./storage/worker-logs:/var/www/html/storage/logs
     healthcheck:
       test: ["CMD-SHELL", "ps aux | grep 'artisan horizon' | grep -v grep || exit 1"]
       interval: 10s
