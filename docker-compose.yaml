@@ -50,6 +50,12 @@ services:
     build:
       context: https://github.com/w3c/feedvalidator.git#9ce274c9db93796b8ab2a44952b9da80811bf765
     restart: unless-stopped
+    # Upstream Apache logs to files, which leaves Coolify’s log view empty. Send
+    # them to stdout/stderr instead, then run Apache exactly as upstream does.
+    command:
+      - sh
+      - -c
+      - ln -sf /dev/stdout /var/log/apache2/access.log && ln -sf /dev/stderr /var/log/apache2/error.log && exec /usr/sbin/apache2ctl -D FOREGROUND
     expose:
       - "80"
     healthcheck:
