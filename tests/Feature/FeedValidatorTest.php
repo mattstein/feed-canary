@@ -3,7 +3,9 @@
 use App\Models\Feed;
 use App\Services\FeedValidator\FeedValidator;
 use App\Services\FeedValidator\ValidationResult;
+use App\Services\FeedValidator\ValidatorInfrastructureException;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
 
 const W3C_URL = 'https://validator.w3.org/*';
@@ -173,4 +175,127 @@ it('skips the W3C stage when it is disabled in config', function () {
 
     expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Valid);
     Http::assertNotSent(fn ($request) => str_contains($request->url(), 'w3.org'));
+});
+
+/*
+|--------------------------------------------------------------------------
+| Self-hosted validator container
+|--------------------------------------------------------------------------
+*/
+
+const LOCAL_URL = 'http://validator/*';
+
+function useLocalValidator(): void
+{
+    config(['feed.local_validator_url' => 'http://validator/check.cgi']);
+}
+
+it('posts the fetched body to the local validator and trusts a valid verdict', function () {
+    useLocalValidator();
+    Http::fake([LOCAL_URL => Http::response(soap('true'))]);
+
+    $result = (new FeedValidator)->validate(xmlFeed(), validRss());
+
+    expect($result)->toBe(ValidationResult::Valid);
+    Http::assertSent(fn ($request) => $request->method() === 'POST'
+        && $request->url() === 'http://validator/check.cgi'
+        && $request['rawdata'] === validRss()
+        && $request['output'] === 'soap12');
+    Http::assertNotSent(fn ($request) => ! str_starts_with($request->url(), 'http://validator/'));
+});
+
+it('trusts an invalid verdict from the local validator without asking anyone else', function () {
+    useLocalValidator();
+    Http::fake([LOCAL_URL => Http::response(soap('false'))]);
+
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Invalid);
+    Http::assertNotSent(fn ($request) => ! str_starts_with($request->url(), 'http://validator/'));
+});
+
+it('falls back to the public validators and reports when the local validator is unreachable', function () {
+    Exceptions::fake();
+    useLocalValidator();
+    Http::fake([
+        LOCAL_URL => fn () => throw new ConnectionException('connection refused'),
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('This is a valid RSS feed.'),
+    ]);
+
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Valid);
+    Exceptions::assertReported(ValidatorInfrastructureException::class);
+});
+
+it('falls back and reports when the local validator answers with a 5xx', function () {
+    Exceptions::fake();
+    useLocalValidator();
+    Http::fake([
+        LOCAL_URL => Http::response('Internal Server Error', 500),
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('This is a valid RSS feed.'),
+    ]);
+
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Valid);
+    Exceptions::assertReported(ValidatorInfrastructureException::class);
+});
+
+it('falls back and reports when the local validator returns garbage with a 200', function () {
+    Exceptions::fake();
+    useLocalValidator();
+    Http::fake([
+        LOCAL_URL => Http::response('<html>Apache default page</html>'),
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('This is a valid RSS feed.'),
+    ]);
+
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Valid);
+    Exceptions::assertReported(ValidatorInfrastructureException::class);
+});
+
+it('reports a local validator outage once per throttle window, not once per feed', function () {
+    Exceptions::fake();
+    useLocalValidator();
+    Http::fake([
+        LOCAL_URL => Http::response('', 503),
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('This is a valid RSS feed.'),
+    ]);
+
+    foreach (range(1, 5) as $_) {
+        (new FeedValidator)->validate(xmlFeed(), validRss());
+    }
+
+    Exceptions::assertReportedCount(1);
+});
+
+it('reports when every validator fails to give a verdict, even without a local validator', function () {
+    Exceptions::fake();
+    Http::fake([
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('Sorry An error occurred while trying to validate this feed.'),
+    ]);
+
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Unknown);
+    Exceptions::assertReported(ValidatorInfrastructureException::class);
+});
+
+it('does not report when the public W3C stage fails but a verdict is still reached', function () {
+    Exceptions::fake();
+    Http::fake([
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('This is a valid RSS feed.'),
+    ]);
+
+    (new FeedValidator)->validate(xmlFeed(), validRss());
+
+    Exceptions::assertNothingReported();
+});
+
+it('does not touch the network for a local validator that is not configured', function () {
+    Http::fake([
+        W3C_URL => Http::response(soap('true')),
+    ]);
+
+    (new FeedValidator)->validate(xmlFeed(), validRss());
+
+    Http::assertNotSent(fn ($request) => str_starts_with($request->url(), 'http://validator/'));
 });

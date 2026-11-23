@@ -30,6 +30,11 @@ services:
     environment:
       PHP_FPM_POOL_NAME: "feed-canary_horizon"
       LOG_FILE: horizon
+      # Set the same FEED_LOCAL_VALIDATOR_URL on the web Application so a manual
+      # check behaves like a scheduled one. Both must resolve the validator over
+      # Coolify’s predefined network. If it’s down, checks fall back to the public
+      # validators and Sentry/Bugsink is alerted.
+      FEED_LOCAL_VALIDATOR_URL: ${FEED_LOCAL_VALIDATOR_URL:-http://validator/check.cgi}
     command: [ "php", "artisan", "horizon" ]
     volumes:
       - ./storage:/var/www/html/storage
@@ -39,3 +44,17 @@ services:
       retries: 5
       start_period: 10s
       timeout: 10s
+  # Self-hosted W3C feed validator (check.cgi under Apache). Internal only: no
+  # published port, no domain. Pinned to a commit; bump it deliberately.
+  validator:
+    build:
+      context: https://github.com/w3c/feedvalidator.git#9ce274c9db93796b8ab2a44952b9da80811bf765
+    restart: unless-stopped
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost/index.html', timeout=3)"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 5s

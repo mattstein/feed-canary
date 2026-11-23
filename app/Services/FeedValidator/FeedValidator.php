@@ -7,6 +7,8 @@ use DOMDocument;
 use DOMXPath;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use JsonSchema\Validator;
@@ -68,6 +70,14 @@ class FeedValidator
             return ValidationResult::Invalid;
         }
 
+        if (config('feed.local_validator_url')) {
+            $verdict = $this->localVerdict();
+
+            if ($verdict !== null) {
+                return $verdict;
+            }
+        }
+
         if (config('feed.w3c_enabled')) {
             $verdict = $this->w3cVerdict();
 
@@ -83,6 +93,8 @@ class FeedValidator
                 'feed_id' => $this->feed->id,
                 'feed_url' => $this->feed->url,
             ]);
+
+            $this->reportFailure('all-validators', 'No validator produced a verdict');
         }
 
         return $verdict;
@@ -102,9 +114,42 @@ class FeedValidator
     }
 
     /**
-     * Asks the W3C SOAP service. Returns `null` for anything that isn’t a
-     * definitive, well-formed answer (429, Cloudflare challenge, 5xx, timeout,
-     * SOAP fault) so the caller can try another validator.
+     * Asks the self-hosted validator by posting the exact body we fetched.
+     * Any failure is reported, since the public validators are only a fallback.
+     */
+    private function localVerdict(): ?ValidationResult
+    {
+        try {
+            $response = $this->client()->asForm()->post(config('feed.local_validator_url'), [
+                'output' => 'soap12',
+                'url' => $this->feed->url,
+                'rawdata' => $this->body,
+            ]);
+        } catch (ConnectionException $exception) {
+            $this->reportFailure('local-validator', 'Unreachable: '.$exception->getMessage());
+
+            return null;
+        }
+
+        if (! $response->successful()) {
+            $this->reportFailure('local-validator', 'HTTP '.$response->status());
+
+            return null;
+        }
+
+        $verdict = $this->soapVerdict($response);
+
+        if ($verdict === null) {
+            $this->reportFailure('local-validator', 'Unusable response');
+        }
+
+        return $verdict;
+    }
+
+    /**
+     * Asks the public W3C SOAP service. Returns `null` for anything that isn’t
+     * a definitive, well-formed answer (429, Cloudflare challenge, 5xx,
+     * timeout, SOAP fault) so the caller can try another validator.
      */
     private function w3cVerdict(): ?ValidationResult
     {
@@ -125,6 +170,11 @@ class FeedValidator
             return null;
         }
 
+        return $this->soapVerdict($response);
+    }
+
+    private function soapVerdict(Response $response): ?ValidationResult
+    {
         $previous = libxml_use_internal_errors(true);
 
         try {
@@ -154,6 +204,25 @@ class FeedValidator
             libxml_clear_errors();
             libxml_use_internal_errors($previous);
         }
+    }
+
+    /**
+     * Reports an infrastructure failure, at most once per throttle window per
+     * stage, so a dead validator produces one alert instead of one per feed.
+     */
+    private function reportFailure(string $stage, string $detail): void
+    {
+        Log::warning("Feed validator problem ({$stage}): {$detail}");
+
+        try {
+            if (! Cache::add('feed-validator-alert:'.$stage, true, (int) config('feed.alert_throttle', 900))) {
+                return;
+            }
+        } catch (\Throwable) {
+            // If the cache itself is down, better to over-report than to stay quiet.
+        }
+
+        report(new ValidatorInfrastructureException("Feed validator problem ({$stage}): {$detail}"));
     }
 
     /**
