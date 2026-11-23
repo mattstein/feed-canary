@@ -1,6 +1,11 @@
 <div class="container">
   <h1>Updates</h1>
 
+  <h2 id="2026-11-23">2026-11-23</h2>
+  <ul>
+    <li>Started checking against a local instance of W3C’s feed validator to improve reliability and be a better internet citizen in general.</li>
+  </ul>
+
   <h2 id="2025-01-21">2025-01-21</h2>
   <ul>
     <li>Quietly started logging connection exceptions, with the eventual goal of failing feeds and sending notifications when Feed Canary fails to connect within 24 hours.</li>
