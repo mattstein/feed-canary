@@ -50,7 +50,7 @@ What I’m using:
 
 It’s important to set this up with a stable queue! You can check out the project’s [Dockerfile](https://github.com/mattstein/feed-canary/blob/main/Dockerfile) that’s used as the basis for each app container in the [docker-compose.yaml](https://github.com/mattstein/feed-canary/blob/main/docker-compose.yaml) file I use with Coolify. I manually created PostgreSQL and Redis services separately. (I [mentioned this](https://mattstein.com/thoughts/diving-into-coolify/#feedcanary) in a blog post about transitioning from Ploi to Coolify.)
 
-I added [Laravel Horizon](https://laravel.com/docs/11.x/horizon) to the project to keep closer watch over the queue and its performance. (Okay also curiosity.) You’ll need to add your IP address to the allow list in order to visit `/horizon` and have a look for yourself.
+I added [Laravel Horizon](https://laravel.com/docs/11.x/horizon) to the project to keep closer watch over the queue and its performance. (Okay also curiosity.) The dashboard is restricted to a list of allowed networks (`HORIZON_ALLOWED_NETWORKS`, defaulting to the Tailscale range), so you’ll need to add your own to visit `/horizon` and have a look for yourself.
 
 ### System Resources
 

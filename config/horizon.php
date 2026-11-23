@@ -223,4 +223,15 @@ return [
     |
     */
     'allowed_networks' => env('HORIZON_ALLOWED_NETWORKS', '100.64.0.0/10'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notification Email
+    |--------------------------------------------------------------------------
+    |
+    | Where Horizon sends its mail notifications (e.g. long queue wait times).
+    | Left unset, no address is routed and those notifications go nowhere.
+    |
+    */
+    'notification_email' => env('HORIZON_NOTIFICATION_EMAIL'),
 ];
