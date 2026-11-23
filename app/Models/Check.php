@@ -25,7 +25,7 @@ class Check extends Model
      */
     public const int STATUS_CONNECTION_FAILURE = 0;
 
-    protected $fillable = ['feed_id', 'status', 'headers', 'hash', 'is_valid', 'validated_at'];
+    protected $fillable = ['feed_id', 'status', 'headers', 'hash', 'is_valid', 'validated_at', 'validator'];
 
     protected $casts = [
         'headers' => 'array',

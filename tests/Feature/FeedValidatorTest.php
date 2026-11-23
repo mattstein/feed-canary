@@ -5,6 +5,7 @@ use App\Services\FeedValidator\FeedValidator;
 use App\Services\FeedValidator\ValidationResult;
 use App\Services\FeedValidator\ValidatorInfrastructureException;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
 
@@ -298,4 +299,79 @@ it('does not touch the network for a local validator that is not configured', fu
     (new FeedValidator)->validate(xmlFeed(), validRss());
 
     Http::assertNotSent(fn ($request) => str_starts_with($request->url(), 'http://validator/'));
+});
+
+/*
+|--------------------------------------------------------------------------
+| Which validator gave the verdict
+|--------------------------------------------------------------------------
+*/
+
+it('records the local validator as the source of its verdict', function () {
+    useLocalValidator();
+    Http::fake([LOCAL_URL => Http::response(soap('true'))]);
+
+    (new FeedValidator)->validate(xmlFeed(), validRss());
+
+    expect(Context::get('feed_validator'))->toBe('local');
+});
+
+it('records the public W3C validator as the source of its verdict', function () {
+    Http::fake([W3C_URL => Http::response(soap('false'))]);
+
+    (new FeedValidator)->validate(xmlFeed(), validRss());
+
+    expect(Context::get('feed_validator'))->toBe('w3c');
+});
+
+it('records RSS Board as the source when it gives the verdict', function () {
+    Http::fake([
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('This is a valid RSS feed.'),
+    ]);
+
+    (new FeedValidator)->validate(xmlFeed(), validRss());
+
+    expect(Context::get('feed_validator'))->toBe('rssboard');
+});
+
+it('records the fallback, not the failed local validator, when the container is down', function () {
+    Exceptions::fake();
+    useLocalValidator();
+    Http::fake([
+        LOCAL_URL => Http::response('', 503),
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('This is a valid RSS feed.'),
+    ]);
+
+    (new FeedValidator)->validate(xmlFeed(), validRss());
+
+    expect(Context::get('feed_validator'))->toBe('rssboard');
+});
+
+it('records no source when nobody gave a verdict, and clears a stale one', function () {
+    Exceptions::fake();
+    Context::add('feed_validator', 'local');
+    Http::fake([
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('Sorry An error occurred while trying to validate this feed.'),
+    ]);
+
+    (new FeedValidator)->validate(xmlFeed(), validRss());
+
+    expect(Context::get('feed_validator'))->toBeNull();
+});
+
+it('records the structural parser as the source of an unparseable-XML verdict', function () {
+    (new FeedValidator)->validate(xmlFeed(), '<not><valid><rss>');
+
+    expect(Context::get('feed_validator'))->toBe('laminas');
+});
+
+it('records the JSON schema check as the source of a JSON verdict', function () {
+    $feed = Feed::factory()->create(['type' => 'application/json']);
+
+    (new FeedValidator)->validate($feed, json_encode(['version' => 'https://jsonfeed.org/version/1.1', 'title' => 'T', 'items' => []]));
+
+    expect(Context::get('feed_validator'))->toBe('jsonschema');
 });

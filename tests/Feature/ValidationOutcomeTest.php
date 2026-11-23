@@ -5,6 +5,7 @@ use App\Models\Check;
 use App\Models\Feed;
 use App\Services\FeedValidator\ValidationResult;
 use Illuminate\Http\Client\Factory;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
@@ -158,4 +159,52 @@ it('feed:revalidate --stale expires pinned verdicts on failing feeds only, and i
         ->and($pinned->fresh()->is_valid)->toBeFalse() // never bulk-flipped to healthy
         ->and($failing->fresh()->status)->toBe(Feed::STATUS_FAILING)
         ->and($fine->fresh()->validated_at)->not->toBeNull();
+});
+
+it('stores which validator gave the verdict on the check', function () {
+    $feed = Feed::factory()->create();
+    fakeFeedResponse($feed);
+
+    FeedValidator::shouldReceive('validate')->once()->andReturnUsing(function () {
+        Context::add('feed_validator', 'local');
+
+        return ValidationResult::Valid;
+    });
+
+    $feed->check();
+
+    expect($feed->latestCheck()->validator)->toBe('local');
+});
+
+it('does not store a stale validator from an earlier check when the verdict is Unknown', function () {
+    $feed = Feed::factory()->create();
+    fakeFeedResponse($feed);
+    Context::add('feed_validator', 'local');
+
+    FeedValidator::shouldReceive('validate')->once()->andReturn(ValidationResult::Unknown);
+
+    $feed->check();
+
+    expect($feed->latestCheck()->validator)->toBeNull();
+});
+
+it('carries the original validator forward when a verdict is reused', function () {
+    $feed = Feed::factory()->create();
+    makePastCheck($feed, ['is_valid' => true, 'hash' => md5(FEED_BODY), 'validator' => 'rssboard']);
+    fakeFeedResponse($feed);
+
+    FeedValidator::shouldReceive('validate')->never();
+
+    $feed->check();
+
+    expect($feed->latestCheck()->validator)->toBe('rssboard');
+});
+
+it('stores no validator for a non-2xx response', function () {
+    $feed = Feed::factory()->create();
+    Http::fake([$feed->url => Http::response('nope', 500)]);
+
+    $feed->check();
+
+    expect($feed->latestCheck()->validator)->toBeNull();
 });

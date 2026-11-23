@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Sentry\State\Scope;
@@ -186,6 +187,7 @@ class Feed extends Model
         $isValid = false;
         $hash = null;
         $validatedAt = $now;
+        $validator = null;
 
         if ($response->successful()) {
             Log::debug('Check successful');
@@ -200,10 +202,13 @@ class Feed extends Model
                 Log::debug('Content unchanged, using last check validity');
                 $isValid = $previous->is_valid;
                 $validatedAt = $previous->validated_at;
+                $validator = $previous->validator;
             } else {
                 Log::debug('Checking validity');
+                Context::forget('feed_validator');
                 $isValid = FeedValidator::validate($this, $body)->toBool();
                 $validatedAt = $isValid === null ? null : $now;
+                $validator = $isValid === null ? null : Context::get('feed_validator');
             }
         }
 
@@ -217,6 +222,7 @@ class Feed extends Model
         $check->hash = $hash;
         $check->is_valid = $isValid;
         $check->validated_at = $validatedAt;
+        $check->validator = $validator;
 
         $check->save();
 

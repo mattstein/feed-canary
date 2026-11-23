@@ -9,6 +9,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use JsonSchema\Validator;
@@ -33,6 +34,9 @@ class FeedValidator
     {
         $this->feed = $feed;
         $this->body = $body;
+
+        // Reset so a stale source from an earlier validation can’t leak through.
+        Context::forget('feed_validator');
 
         // Ensure Sentry context includes feed identifiers during validation
         if (app()->bound('sentry')) {
@@ -59,7 +63,7 @@ class FeedValidator
         $validator = new Validator;
         $validator->validate($data, $jsonSchemaObject);
 
-        return $validator->isValid() ? ValidationResult::Valid : ValidationResult::Invalid;
+        return $this->decided('jsonschema', $validator->isValid() ? ValidationResult::Valid : ValidationResult::Invalid);
     }
 
     private function validateXml(): ValidationResult
@@ -67,14 +71,14 @@ class FeedValidator
         Log::debug('Validating XML schema');
 
         if (! $this->isReadableXml()) {
-            return ValidationResult::Invalid;
+            return $this->decided('laminas', ValidationResult::Invalid);
         }
 
         if (config('feed.local_validator_url')) {
             $verdict = $this->localVerdict();
 
             if ($verdict !== null) {
-                return $verdict;
+                return $this->decided('local', $verdict);
             }
         }
 
@@ -82,22 +86,35 @@ class FeedValidator
             $verdict = $this->w3cVerdict();
 
             if ($verdict !== null) {
-                return $verdict;
+                return $this->decided('w3c', $verdict);
             }
         }
 
         $verdict = $this->rssBoardVerdict();
 
-        if ($verdict === ValidationResult::Unknown) {
-            Log::warning('No validator produced a verdict', [
-                'feed_id' => $this->feed->id,
-                'feed_url' => $this->feed->url,
-            ]);
-
-            $this->reportFailure('all-validators', 'No validator produced a verdict');
+        if ($verdict !== ValidationResult::Unknown) {
+            return $this->decided('rssboard', $verdict);
         }
 
+        Log::warning('No validator produced a verdict', [
+            'feed_id' => $this->feed->id,
+            'feed_url' => $this->feed->url,
+        ]);
+
+        $this->reportFailure('all-validators', 'No validator produced a verdict');
+
         return $verdict;
+    }
+
+    /**
+     * Notes which stage gave the verdict, for `Feed::check()` to store. Goes
+     * through `Context` so callers (and test mocks of this class) needn’t change.
+     */
+    private function decided(string $source, ValidationResult $result): ValidationResult
+    {
+        Context::add('feed_validator', $source);
+
+        return $result;
     }
 
     private function isReadableXml(): bool
