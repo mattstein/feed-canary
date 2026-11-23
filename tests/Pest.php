@@ -65,6 +65,7 @@ function makePastCheck(Feed $feed, array $overrides = []): Check
         'hash' => null,
         'is_valid' => false,
         'created_at' => $oneMinuteAgo,
+        'validated_at' => $oneMinuteAgo,
         'updated_at' => $oneMinuteAgo,
     ];
 

@@ -3,6 +3,7 @@
 use App\Livewire\Home;
 use App\Mail\ConfirmFeed;
 use App\Models\Feed;
+use App\Services\FeedValidator\ValidationResult;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
@@ -68,9 +69,9 @@ it('coerces array email to string', function () {
 it('sends confirmation email on successful feed creation', function () {
     Mail::fake();
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     Http::fake([
         'https://valid.example.com/feed*' => Http::response(
@@ -101,9 +102,9 @@ it('sends confirmation email on successful feed creation', function () {
 it('stores content type from response', function () {
     Mail::fake();
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     Http::fake([
         'https://json.example.com/feed*' => Http::response(

@@ -3,6 +3,7 @@
 use App\Models\Check;
 use App\Models\ConnectionFailure;
 use App\Models\Feed;
+use App\Services\FeedValidator\ValidationResult;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
@@ -22,9 +23,9 @@ it('returns true and sets healthy status for valid feed response', function () {
         $feed->url => Http::response($body, 200, ['Content-Type' => 'application/rss+xml']),
     ]);
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     $result = $feed->check();
 
@@ -77,9 +78,9 @@ it('creates a check record with correct attributes', function () {
         $feed->url => Http::response($body, 200, ['Content-Type' => 'application/rss+xml']),
     ]);
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     $feed->check();
 
@@ -136,7 +137,7 @@ it('skips validation when content hash is unchanged', function () {
     ]);
 
     // Should never call the validator
-    FeedValidator::shouldReceive('feedIsValid')->times(0);
+    FeedValidator::shouldReceive('validate')->times(0);
 
     $result = $feed->check();
     expect($result)->toBeTrue();
@@ -158,9 +159,9 @@ it('calls validator when content hash changes', function () {
         $feed->url => Http::response($newBody, 200, ['Content-Type' => 'application/rss+xml']),
     ]);
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     $feed->check();
 });

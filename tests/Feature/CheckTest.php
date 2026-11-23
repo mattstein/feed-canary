@@ -2,6 +2,7 @@
 
 use App\Models\Check;
 use App\Models\Feed;
+use App\Services\FeedValidator\ValidationResult;
 use Illuminate\Support\Facades\Http;
 
 it('ignores unconfirmed feeds from check cycles', function () {
@@ -40,14 +41,14 @@ it('does not re-validate unchanged content', function () {
     ]);
 
     // After re-receiving the same feed content, external validation should be skipped
-    FeedValidator::shouldReceive('feedIsValid')->times(0);
+    FeedValidator::shouldReceive('validate')->times(0);
 
     $feed->check();
 
     $this->assertEquals(Feed::STATUS_HEALTHY, $feed->status);
 
     // Changed content *should* trigger a new validation check though
-    FeedValidator::shouldReceive('feedIsValid')->once();
+    FeedValidator::shouldReceive('validate')->once()->andReturn(ValidationResult::Invalid);
 
     $feed->check();
 

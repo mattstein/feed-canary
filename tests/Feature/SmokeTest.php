@@ -5,6 +5,7 @@ use App\Livewire\ManageFeed;
 use App\Livewire\Status;
 use App\Mail\ConfirmFeed;
 use App\Models\Feed;
+use App\Services\FeedValidator\ValidationResult;
 use FeedValidator as FeedValidatorFacade;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -75,9 +76,9 @@ it('rejects invalid email address', function () {
 
 it('accepts valid input', function () {
     Mail::fake();
-    FeedValidatorFacade::shouldReceive('feedIsValid')
+    FeedValidatorFacade::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     // Don’t really bother The Verge; give back some basic, valid RSS
     Http::fake([

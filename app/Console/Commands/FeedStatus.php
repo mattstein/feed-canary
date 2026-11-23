@@ -68,6 +68,12 @@ class FeedStatus extends Command
             $status = $feed->status;
             $statusColor = $status === Feed::STATUS_HEALTHY ? 'green' : 'red';
 
+            if ($latestCheck && $latestCheck->is_valid === null) {
+                // No validator produced a verdict on the latest check
+                $status = 'unverified';
+                $statusColor = 'yellow';
+            }
+
             // Calculate time information
             $timeInfo = '-';
             $failureCount = 0;

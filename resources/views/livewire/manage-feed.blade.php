@@ -28,7 +28,11 @@
       <blockquote>{{ $feed->latestConnectionFailure()->message }}</blockquote>
       <p>This doesn’t affect the check status, but if we can’t connect again within {{ config('app.connection_failure_threshold') / 60 / 60 }} hours it’ll be considered a failure and you’ll receive a notification.</p>
     @else
-      @if ($feed->confirmed && $feed->status === 'healthy')
+      @if ($feed->confirmed && $feed->latestCheck() && $feed->latestCheck()->is_valid === null)
+        <div wire:loading.remove wire:target="check">
+          <p>🤷 Couldn’t verify this feed on the latest check because the validation services weren’t available. Nothing has changed with your monitor’s status, and we’ll try again shortly.</p>
+        </div>
+      @elseif ($feed->confirmed && $feed->status === 'healthy')
         <p wire:loading.remove wire:target="check">✅ Looks great!
           @if ($feed->latestCheck() && $feed->latestCheck()->is_valid) <code>{{ $feed->latestCheck()->status }}</code> response with valid markup.@endif
         </p>
@@ -76,6 +80,10 @@
                 // Temporary connection failure (within threshold)
                 $color = '#f59e0b'; // orange
                 $status = 'Connection issue (temporary)';
+              } elseif ($item['is_valid'] === null) {
+                // No validator produced a verdict
+                $color = '#9ca3af'; // gray
+                $status = 'Couldn’t verify (validator unavailable)';
               } elseif ($item['status'] === 0 || !$item['is_valid']) {
                 // Failed check (connection failure exceeded threshold or invalid feed)
                 $color = '#ef4444'; // red

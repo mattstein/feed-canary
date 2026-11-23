@@ -4,6 +4,7 @@ use App\Mail\FeedConnectionFailed;
 use App\Mail\FeedFixed;
 use App\Models\Check;
 use App\Models\Feed;
+use App\Services\FeedValidator\ValidationResult;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
@@ -100,8 +101,8 @@ it('clears connection failure when feed recovers within threshold', function () 
     $validBody = file_get_contents(base_path('tests/Resources/valid-rss.xml'));
 
     // Mock validator to return true
-    FeedValidator::shouldReceive('feedIsValid')
-        ->andReturn(true);
+    FeedValidator::shouldReceive('validate')
+        ->andReturn(ValidationResult::Valid);
 
     Http::fake([
         $feed->url => Http::response($validBody, 200, ['Content-Type' => 'application/rss+xml']),
@@ -262,9 +263,9 @@ it('handles recovery after exceeding threshold', function () {
     // Travel a bit more and recover
     $this->travel(5)->minutes();
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     $feed->check();
     $feed->refresh();
@@ -306,9 +307,9 @@ it('handles feed that fails, recovers briefly, then fails again within threshold
     // Travel 10 hours and recover
     $this->travel(10)->hours();
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     $feed->check();
     $feed->refresh();

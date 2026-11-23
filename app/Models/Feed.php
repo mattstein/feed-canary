@@ -182,23 +182,28 @@ class Feed extends Model
             return false;
         }
 
+        // `null` means no validator produced a verdict
         $isValid = false;
+        $hash = null;
+        $validatedAt = $now;
 
         if ($response->successful()) {
             Log::debug('Check successful');
 
             $body = $response->body();
             $hash = md5($body);
-            $previousHash = $this->latestCheck()->hash ?? null;
+            $previous = $this->latestCheck();
 
             // TODO: check and honor last-modified header?
 
-            if ($hash !== $previousHash) {
-                Log::debug('Content changed, checking validity');
-                $isValid = FeedValidator::feedIsValid($this, $body);
-            } else {
+            if ($this->canReuseVerdict($previous, $hash)) {
                 Log::debug('Content unchanged, using last check validity');
-                $isValid = $this->latestCheck()->is_valid;
+                $isValid = $previous->is_valid;
+                $validatedAt = $previous->validated_at;
+            } else {
+                Log::debug('Checking validity');
+                $isValid = FeedValidator::validate($this, $body)->toBool();
+                $validatedAt = $isValid === null ? null : $now;
             }
         }
 
@@ -209,10 +214,25 @@ class Feed extends Model
         $check->feed_id = $this->id;
         $check->status = $response->status();
         $check->headers = $response->headers();
-        $check->hash = $hash ?? null;
+        $check->hash = $hash;
         $check->is_valid = $isValid;
+        $check->validated_at = $validatedAt;
 
         $check->save();
+
+        if ($isValid === null) {
+            // No verdict: don’t touch status or send anything.
+            Log::warning('Feed could not be verified; no validator produced a verdict', [
+                'feed_id' => $this->id,
+                'feed_url' => $this->url,
+            ]);
+
+            if (! $this->save()) {
+                Log::error('Failed to save feed '.$this->id);
+            }
+
+            return $this->status === self::STATUS_HEALTHY;
+        }
 
         $this->status = $isValid ? self::STATUS_HEALTHY : self::STATUS_FAILING;
 
@@ -222,7 +242,7 @@ class Feed extends Model
                 Log::debug('Sending failure notification');
                 Mail::send(new FeedFailed($this, $check));
                 $this->last_notified = now();
-            } elseif ($this->previousCheck() !== null) {
+            } elseif ($this->previousVerdictCheck() !== null) {
                 // If a confirmed feed just turned healthy, send a notification
                 Log::debug('Sending fixed notification');
                 Mail::send(new FeedFixed($this, $check));
@@ -235,6 +255,19 @@ class Feed extends Model
         }
 
         return $isValid;
+    }
+
+    /**
+     * A previous verdict may stand in for a fresh validation only if the
+     * content is identical, it was an actual verdict, and it isn’t stale.
+     */
+    private function canReuseVerdict(?Check $previous, string $hash): bool
+    {
+        return $previous !== null
+            && $previous->hash === $hash
+            && $previous->is_valid !== null
+            && $previous->validated_at !== null
+            && $previous->validated_at->gt(now()->subSeconds((int) config('feed.revalidate_after', 86400)));
     }
 
     /**
@@ -315,6 +348,20 @@ class Feed extends Model
     }
 
     /**
+     * Returns the most recent check before the latest that reached a verdict,
+     * skipping checks where no validator could give one.
+     */
+    public function previousVerdictCheck(): ?Check
+    {
+        /** @var Check|null */
+        return $this->checks()
+            ->whereNotNull('is_valid')
+            ->latest()
+            ->skip(1)
+            ->first();
+    }
+
+    /**
      * @return string `json` or `xml`, depending on the MIME type from the first response
      */
     public function getFormat(): string
@@ -351,12 +398,12 @@ class Feed extends Model
     }
 
     /**
-     * @return bool True if the status of the previous two checks differ.
+     * @return bool True if the status of the latest check differs from the previous check that had a verdict.
      */
     public function statusHasChanged(): bool
     {
         $latest = $this->latestCheck();
-        $previous = $this->previousCheck();
+        $previous = $this->previousVerdictCheck();
 
         $currentStatus = $latest->is_valid ?? null;
         $previousStatus = $previous->is_valid ?? null;

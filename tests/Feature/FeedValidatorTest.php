@@ -2,11 +2,39 @@
 
 use App\Models\Feed;
 use App\Services\FeedValidator\FeedValidator;
+use App\Services\FeedValidator\ValidationResult;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+
+const W3C_URL = 'https://validator.w3.org/*';
+const RSSBOARD_URL = 'https://www.rssboard.org/rss-validator/*';
+
+function soap(string $validity): string
+{
+    return '<?xml version="1.0" encoding="utf-8"?>'
+        .'<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope"><env:Body>'
+        .'<m:feedvalidationresponse xmlns:m="http://www.w3.org/2005/10/feed-validator">'
+        .'<m:uri>https://example.com/feed.xml</m:uri>'
+        .'<m:validity>'.$validity.'</m:validity>'
+        .'</m:feedvalidationresponse></env:Body></env:Envelope>';
+}
+
+function xmlFeed(): Feed
+{
+    return Feed::factory()->create([
+        'type' => 'application/rss+xml',
+        'url' => 'https://example.com/feed.xml',
+    ]);
+}
+
+function validRss(): string
+{
+    return file_get_contents(base_path('tests/Resources/valid-rss.xml'));
+}
 
 /*
 |--------------------------------------------------------------------------
-| FeedValidator — JSON validation
+| JSON validation
 |--------------------------------------------------------------------------
 */
 
@@ -19,139 +47,130 @@ it('validates valid JSON feed', function () {
         'items' => [],
     ]);
 
-    $validator = new FeedValidator;
-    $result = $validator->feedIsValid($feed, $validJson);
-
-    expect($result)->toBeTrue();
+    expect((new FeedValidator)->validate($feed, $validJson))->toBe(ValidationResult::Valid);
 });
 
 it('rejects invalid JSON feed missing required fields', function () {
     $feed = Feed::factory()->create(['type' => 'application/json']);
 
-    $invalidJson = json_encode([
-        'not_a_feed' => true,
-    ]);
+    $result = (new FeedValidator)->validate($feed, json_encode(['not_a_feed' => true]));
 
-    $validator = new FeedValidator;
-    $result = $validator->feedIsValid($feed, $invalidJson);
-
-    expect($result)->toBeFalse();
+    expect($result)->toBe(ValidationResult::Invalid);
 });
 
 it('rejects malformed JSON', function () {
     $feed = Feed::factory()->create(['type' => 'application/json']);
 
-    $validator = new FeedValidator;
-    $result = $validator->feedIsValid($feed, 'not json at all');
+    expect((new FeedValidator)->validate($feed, 'not json at all'))->toBe(ValidationResult::Invalid);
+});
 
-    expect($result)->toBeFalse();
+it('routes JSON feed to JSON validator without HTTP calls', function () {
+    $feed = Feed::factory()->create(['type' => 'application/json']);
+
+    Http::fake();
+
+    (new FeedValidator)->validate($feed, json_encode([
+        'version' => 'https://jsonfeed.org/version/1.1',
+        'title' => 'Test Feed',
+        'items' => [],
+    ]));
+
+    Http::assertNothingSent();
 });
 
 /*
 |--------------------------------------------------------------------------
-| FeedValidator — XML validation
+| XML validation
 |--------------------------------------------------------------------------
 */
 
-it('rejects unreadable XML', function () {
-    $feed = Feed::factory()->create(['type' => 'application/rss+xml']);
+it('rejects unreadable XML without any network call', function () {
+    Http::fake();
 
-    $validator = new FeedValidator;
-    $result = $validator->feedIsValid($feed, '<not><valid><rss>');
+    $result = (new FeedValidator)->validate(xmlFeed(), '<not><valid><rss>');
 
-    expect($result)->toBeFalse();
+    expect($result)->toBe(ValidationResult::Invalid);
+    Http::assertNothingSent();
 });
 
 it('rejects empty body as invalid XML', function () {
     $feed = Feed::factory()->create(['type' => 'text/xml']);
 
-    $validator = new FeedValidator;
-    $result = $validator->feedIsValid($feed, '');
-
-    expect($result)->toBeFalse();
+    expect((new FeedValidator)->validate($feed, ''))->toBe(ValidationResult::Invalid);
 });
 
-it('routes JSON feed to JSON validator', function () {
-    $feed = Feed::factory()->create(['type' => 'application/json']);
+it('trusts a W3C validity=true response', function () {
+    Http::fake([W3C_URL => Http::response(soap('true'))]);
 
-    $validJson = json_encode([
-        'version' => 'https://jsonfeed.org/version/1.1',
-        'title' => 'Test Feed',
-        'items' => [],
-    ]);
-
-    // Should not make any HTTP calls (JSON validation is local)
-    Http::fake();
-
-    $validator = new FeedValidator;
-    $validator->feedIsValid($feed, $validJson);
-
-    Http::assertNothingSent();
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Valid);
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'rssboard'));
 });
 
-it('falls back to RSS Board validator when W3C validator fails', function () {
-    $feed = Feed::factory()->create([
-        'type' => 'application/rss+xml',
-        'url' => 'https://example.com/feed.xml',
-    ]);
+it('trusts a well-formed W3C validity=false response', function () {
+    Http::fake([W3C_URL => Http::response(soap('false'))]);
 
-    $validRss = file_get_contents(base_path('tests/Resources/valid-rss.xml'));
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Invalid);
+});
 
-    // RSS Board validator returns success
+it('falls back to RSS Board when W3C is rate limited, and accepts its success page', function () {
     Http::fake([
-        'https://www.rssboard.org/rss-validator/*' => Http::response('This is a valid RSS feed.'),
+        W3C_URL => Http::response('<html>Just a moment...</html>', 429, ['cf-mitigated' => 'challenge']),
+        RSSBOARD_URL => Http::response('This is a valid RSS feed.'),
     ]);
 
-    $validator = new FeedValidator;
-    $validator->feed = $feed;
-    $validator->body = $validRss;
-
-    // Directly test the fallback method
-    $reflection = new ReflectionClass($validator);
-    $method = $reflection->getMethod('isValidXmlRssBoardValidator');
-    $method->setAccessible(true);
-
-    expect($method->invoke($validator))->toBeTrue();
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Valid);
 });
 
-it('returns false from RSS Board validator when response indicates invalid', function () {
-    $feed = Feed::factory()->create([
-        'type' => 'application/rss+xml',
-        'url' => 'https://example.com/feed.xml',
-    ]);
-
+it('returns Unknown when W3C is blocked and RSS Board serves its error page with a 200', function () {
     Http::fake([
-        'https://www.rssboard.org/rss-validator/*' => Http::response('Sorry, this feed does not validate.'),
+        W3C_URL => Http::response('<html>Just a moment...</html>', 429),
+        RSSBOARD_URL => Http::response('Sorry An error occurred while trying to validate this feed.', 200),
     ]);
 
-    $validator = new FeedValidator;
-    $validator->feed = $feed;
-    $validator->body = '';
-
-    $reflection = new ReflectionClass($validator);
-    $method = $reflection->getMethod('isValidXmlRssBoardValidator');
-    $method->setAccessible(true);
-
-    expect($method->invoke($validator))->toBeFalse();
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Unknown);
 });
 
-it('returns false from RSS Board validator on failed HTTP response', function () {
-    $feed = Feed::factory()->create([
-        'type' => 'application/rss+xml',
-        'url' => 'https://example.com/feed.xml',
-    ]);
-
+it('returns Unknown on a W3C SOAP fault and an RSS Board timeout', function () {
     Http::fake([
-        'https://www.rssboard.org/rss-validator/*' => Http::response('Server Error', 500),
+        W3C_URL => Http::response('<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope"><env:Body><env:Fault/></env:Body></env:Envelope>', 200),
+        RSSBOARD_URL => fn () => throw new ConnectionException('timed out'),
     ]);
 
-    $validator = new FeedValidator;
-    $validator->feed = $feed;
-    $validator->body = '';
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Unknown);
+});
 
-    $reflection = new ReflectionClass($validator);
-    $method = $reflection->getMethod('isValidXmlRssBoardValidator');
-    $method->setAccessible(true);
+it('returns Unknown when W3C returns 200 with a Cloudflare challenge and RSS Board is unparseable', function () {
+    Http::fake([
+        W3C_URL => Http::response('<html>Just a moment...</html>', 200),
+        RSSBOARD_URL => Http::response('<html>something unexpected</html>', 200),
+    ]);
 
-    expect($method->invoke($validator))->toBeFalse();
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Unknown);
+});
+
+it('returns Unknown when RSS Board answers with a 5xx', function () {
+    Http::fake([
+        W3C_URL => Http::response('', 502),
+        RSSBOARD_URL => Http::response('Server Error', 500),
+    ]);
+
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Unknown);
+});
+
+it('returns Invalid when RSS Board explicitly says the feed does not validate', function () {
+    Http::fake([
+        W3C_URL => Http::response('', 429),
+        RSSBOARD_URL => Http::response('Sorry This feed does not validate.', 200),
+    ]);
+
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Invalid);
+});
+
+it('skips the W3C stage when it is disabled in config', function () {
+    config(['feed.w3c_enabled' => false]);
+
+    Http::fake([RSSBOARD_URL => Http::response('This is a valid RSS feed.')]);
+
+    expect((new FeedValidator)->validate(xmlFeed(), validRss()))->toBe(ValidationResult::Valid);
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'w3.org'));
 });

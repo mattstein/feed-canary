@@ -5,6 +5,7 @@ use App\Mail\FeedFailed;
 use App\Mail\FeedFixed;
 use App\Models\ConnectionFailure;
 use App\Models\Feed;
+use App\Services\FeedValidator\ValidationResult;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
@@ -83,9 +84,9 @@ it('sends email on new fix', function () {
         'updated_at' => $oneMinuteAgo,
     ]);
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     Http::fake([
         $feed->url => Http::response(
@@ -126,9 +127,9 @@ it('does not send email for unchanged health', function () {
         'updated_at' => $oneMinuteAgo,
     ]);
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     Http::fake([
         $feed->url => Http::response(
@@ -239,9 +240,9 @@ it('sends fix email after connection failures resolve', function () {
 
     $this->travel(5)->minutes();
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     $feed->check();
     $feed->refresh();
@@ -273,9 +274,9 @@ it('sends email for restored connection', function () {
 
     $this->travel(5)->minutes();
 
-    FeedValidator::shouldReceive('feedIsValid')
+    FeedValidator::shouldReceive('validate')
         ->once()
-        ->andReturn(true);
+        ->andReturn(ValidationResult::Valid);
 
     // Simulate happy check after connection failures
     Http::fake([
